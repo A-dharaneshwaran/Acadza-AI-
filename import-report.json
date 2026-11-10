@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-11-10T16:19:56.025Z",
+  "executionDurationMs": 2766,
+  "sourceFiles": {
+    "questionsCount": 43,
+    "reportsCount": 44,
+    "taxonomyVerdictsCount": 7,
+    "taxonomyRepairsCount": 18
+  },
+  "databaseCounts": {
+    "questionsCount": 43,
+    "reportsCount": 44,
+    "taxonomyLoaded": true,
+    "distinctQuestionsReported": 39,
+    "validRelationships": true
+  },
+  "integrityCheck": {
+    "questionsMatch": true,
+    "reportsMatch": true,
+    "allReportQuestionIdsExist": true,
+    "status": "PASSED"
+  }
+}
