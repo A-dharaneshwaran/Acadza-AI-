@@ -27,9 +27,9 @@ app.use(express.json({ limit: '2mb' }));
 
 // Route handlers
 app.use('/api', healthRoutes);
+app.use('/api', queueRoutes);
 app.use('/api', caseRoutes);
 app.use('/api', overviewRoutes);
-app.use('/api', queueRoutes);
 
 // Root route
 app.get('/', (req, res) => {

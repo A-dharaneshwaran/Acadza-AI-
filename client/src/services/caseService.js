@@ -8,6 +8,14 @@ export async function getInvestigationCases() {
 }
 
 /**
+ * Fetch paginated investigation cases with search, filters, and sorting
+ */
+export async function getPaginatedCases(queryParams = {}) {
+  const params = new URLSearchParams(queryParams);
+  return await apiRequest(`/cases/paginated?${params.toString()}`);
+}
+
+/**
  * Fetch a single investigation case by caseId or questionId
  */
 export async function getCaseDetails(caseId) {
@@ -23,6 +31,7 @@ export async function getTaxonomy() {
 
 export default {
   getInvestigationCases,
+  getPaginatedCases,
   getCaseDetails,
   getTaxonomy
 };

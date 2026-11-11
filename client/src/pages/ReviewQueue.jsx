@@ -16,7 +16,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { apiRequest } from '../services/api';
-import { getCaseDetails } from '../services/caseService';
+import { getCaseDetails, getPaginatedCases } from '../services/caseService';
 import CaseDetail from '../components/CaseDetail';
 
 export default function ReviewQueue() {
@@ -43,7 +43,7 @@ export default function ReviewQueue() {
     setLoading(true);
     setError(null);
     try {
-      const queryParams = new URLSearchParams({
+      const res = await getPaginatedCases({
         page: page.toString(),
         limit: limit.toString(),
         search,
@@ -51,8 +51,6 @@ export default function ReviewQueue() {
         priority: priorityFilter,
         sortBy
       });
-
-      const res = await apiRequest(`/cases/paginated?${queryParams.toString()}`);
       if (res.success) {
         setItems(res.items || []);
         setPagination(res.pagination || { page: 1, limit: 8, total: 0, totalPages: 1 });
