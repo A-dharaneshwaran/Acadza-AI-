@@ -232,3 +232,4 @@ npm run triage-cases -- --limit 1
 2. **Zero In-Flight Duplication**: Case status is locked as `processing` before network calls are dispatched.
 3. **No Blind Retries**: Rate limits (HTTP 429) and timeouts stop execution immediately to conserve quota.
 4. **Faculty Authority**: Human-only repairs (`auto: false`) and answer key changes are gated behind human faculty approval.
+

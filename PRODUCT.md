@@ -42,3 +42,4 @@ AI must act strictly as an investigative advisor (**"AI proposes, deterministic 
 - **Implementation Direction**:
   - The backend queries the test-submission log for `questionId`, automatically recalculates the impacted scores, and issues an automated, personalized notification to affected students: *"We investigated a defect flagged on Question #60f744 and corrected the official answer key to (B). Your test score and rank have been updated (+5 marks). Thank you for your diligence."*
   - This turns an embarrassing platform defect into an active trust-building moment, proving to students and parents that Acadza relentlessly respects their effort.
+

@@ -77,3 +77,4 @@ This document outlines the exact scene-by-scene script, screen actions, and talk
 7. Before/After surgical diff preview (`find: C`, `replace: B`)
 8. Faculty action buttons (`Approve`, `Edit`, `Reject`)
 9. VS Code view: `results.json` showing 44 valid objects
+
