@@ -13,7 +13,14 @@ const app = express();
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: config.frontendOrigin,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (config.allowedOrigins.includes(origin) || origin === config.frontendOrigin) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS policy violation: Origin ${origin} not allowed`));
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '2mb' }));
