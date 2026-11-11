@@ -137,3 +137,36 @@ Create DATA_INVENTORY.md, PHASE_02_IMPLEMENTATION.md, and update PROMPTS.md.
 4. **Grouped Investigation vs Individual Outputs**:
    - Cases are grouped per question (`CASE_<questionId>`) to investigate root causes efficiently once per question while preserving all individual student reports and comments for individualized reply synthesis in later phases.
 
+
+
+---
+
+## 4. Phase 03 Finalization & Timeout Update Prompt (v3.1)
+
+```markdown
+PROJECT: ACADZA — REPORT → FIX LOOP
+TASK: PHASE 03 FINALIZATION + NVIDIA TIMEOUT UPDATE
+VERSION: 3.1
+
+PRIMARY OBJECTIVE:
+Finalize the existing Phase 03 AI Investigation & Triage Engine.
+Additionally, increase the NVIDIA inference timeout to exactly 450 seconds.
+The implementation must be completed without making ANY NVIDIA API requests.
+This is a code implementation and integration task, NOT an inference execution task.
+
+PART 1: Set NVIDIA_REQUEST_TIMEOUT=450000 across configuration and services.
+PART 2: Strict request safety - zero automatic retries, concurrency 1, manual recovery on timeouts.
+PART 3-8: Context service, prompt builder, Zod schema, NVIDIA service, and Orchestrator finalization.
+PART 9-11: CLI safeguards, Faculty Console integration, and Health endpoint isolation.
+PART 12-14: Token tracking and local non-inference validation.
+```
+
+### Design Decisions Log (Version 3.1 Updates):
+1. **450-Second (450,000 ms) Centralized Timeout**:
+   - Accommodates NVIDIA free endpoint queue latency under peak load without premature client-side aborts.
+2. **Double-Submission & In-Flight Lock**:
+   - Cases mark status as `processing` in MongoDB before making network requests. Any duplicate submission while a request is in flight is rejected.
+3. **Manual Recovery Safeguard for Timed-Out Cases**:
+   - Because a client-side timeout does not guarantee the upstream model stopped, timed-out cases flag `requiresManualRecovery: true` and cannot be re-run by automated batches without manual `--force` confirmation.
+4. **Health Endpoint Decoupling**:
+   - `/api/health` performs strictly local database and environment checks; no inference tokens are ever consumed by polling or dashboard navigation.

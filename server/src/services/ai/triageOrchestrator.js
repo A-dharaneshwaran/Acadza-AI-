@@ -31,12 +31,23 @@ class TriageOrchestrator {
     }
 
     // Rule: Prevent double-submission if request is actively in-flight
+    // Under NO circumstances may an active processing lock be bypassed, even with force
     if (existing?.aiTriage?.status === 'processing') {
       return {
         success: false,
         skipped: true,
         caseId: context.caseId,
-        message: 'Case is already in processing state. Duplicate request blocked.'
+        message: 'Case is currently in-flight/processing. Duplicate request strictly blocked.'
+      };
+    }
+
+    // Rule: If case previously failed due to timeout, flag that explicit recovery is required
+    if (existing?.aiTriage?.status === 'failed' && existing?.aiTriage?.requiresManualRecovery && !options.force) {
+      return {
+        success: false,
+        skipped: true,
+        caseId: context.caseId,
+        message: 'Case timed out previously and requires manual recovery confirmation before resubmission.'
       };
     }
 
@@ -62,13 +73,16 @@ class TriageOrchestrator {
       ]);
     } catch (err) {
       // Record failure on investigation case safely without overwriting previous successful triage
+      const isTimeout = err.message && (err.message.includes('timeout') || err.message.includes('timed out'));
       if (existing?.aiTriage?.status !== 'completed') {
         await InvestigationCase.updateOne(
           { caseId: context.caseId },
           {
             $set: {
               'aiTriage.status': 'failed',
+              'aiTriage.errorCategory': isTimeout ? 'timeout' : (err.isRateLimit ? 'rate_limit' : 'inference_error'),
               'aiTriage.error': err.message,
+              'aiTriage.requiresManualRecovery': isTimeout,
               'aiTriage.failedAt': new Date()
             }
           }

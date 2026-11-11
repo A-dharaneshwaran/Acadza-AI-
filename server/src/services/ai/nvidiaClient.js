@@ -10,7 +10,7 @@ class NvidiaInferenceClient {
     this.baseUrl = config.nvidia.baseUrl; // 'https://integrate.api.nvidia.com/v1'
     this.model = config.nvidia.model;     // 'deepseek-ai/deepseek-v4.1-flash'
     this.apiKey = config.nvidia.apiKey;
-    this.DEFAULT_TIMEOUT_MS = 25000;
+    this.DEFAULT_TIMEOUT_MS = config.nvidia.requestTimeoutMs || 450000;
   }
 
   /**

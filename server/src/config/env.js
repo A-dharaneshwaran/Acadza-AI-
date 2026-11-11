@@ -11,7 +11,7 @@ module.exports = {
     model: process.env.NVIDIA_MODEL || 'deepseek-ai/deepseek-v4.1-flash',
     apiKey: process.env.NVIDIA_API_KEY || '',
     maxOutputTokens: parseInt(process.env.NVIDIA_MAX_OUTPUT_TOKENS, 10) || 600,
-    requestTimeoutMs: parseInt(process.env.NVIDIA_REQUEST_TIMEOUT, 10) || 240000, // 4 mins to safely accommodate NIM queueing
+    requestTimeoutMs: parseInt(process.env.NVIDIA_REQUEST_TIMEOUT, 10) || 450000, // 450 seconds (7 mins 30s) as per v3.1 specification
     maxConcurrentRequests: parseInt(process.env.NVIDIA_MAX_CONCURRENT_REQUESTS, 10) || 1
   },
   auth: {

@@ -46,6 +46,12 @@ async function run() {
       await closeDB();
       process.exit(1);
     }
+    // Strict Lock: Never bypass an active processing case under any circumstances
+    if (c.aiTriage?.status === 'processing') {
+      console.error(`[-] Case ${caseId} is currently in-flight/processing. Cannot submit duplicate request.`);
+      await closeDB();
+      process.exit(1);
+    }
     // If case has failed previously and force is not specified, do not automatically re-run
     if (c.aiTriage?.status === 'failed' && !force) {
       console.log(`[-] Case ${caseId} previously failed (${c.aiTriage?.error}). Automatic resubmission blocked. Pass --force to retry.`);
@@ -54,10 +60,16 @@ async function run() {
     }
     targetCases = [c];
   } else if (processAll) {
-    targetCases = await InvestigationCase.find({}).sort({ reportCount: -1, lastReportedAt: -1 }).lean();
+    // Only pick cases that are not completed, not failed (unless force), and not in-flight
+    const filter = force 
+      ? { 'aiTriage.status': { $ne: 'processing' } } 
+      : { 'aiTriage.status': { $nin: ['completed', 'failed', 'processing'] } };
+    targetCases = await InvestigationCase.find(filter).sort({ reportCount: -1, lastReportedAt: -1 }).lean();
   } else {
-    // Default: find 1 pending case or limit
-    const filter = force ? {} : { 'aiTriage.status': { $ne: 'completed' } };
+    // Default: find pending cases (never auto-process failed, completed, or in-flight without force)
+    const filter = force 
+      ? { 'aiTriage.status': { $ne: 'processing' } } 
+      : { 'aiTriage.status': { $nin: ['completed', 'failed', 'processing'] } };
     targetCases = await InvestigationCase.find(filter)
       .sort({ reportCount: -1, lastReportedAt: -1 })
       .limit(limit)
