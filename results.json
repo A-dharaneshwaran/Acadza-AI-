@@ -2,13 +2,17 @@
   {
     "reportId": "R005",
     "questionId": "68dea616d0cda73d07e93ae6",
-    "verdict": "no_error",
-    "repair": null,
-    "edit": null,
-    "route": "no_change",
-    "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"answer key wrong i got n=1\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "verdict": "defect",
+    "repair": "answer_key",
+    "edit": {
+      "field": "answer",
+      "find": "2",
+      "replace": "1"
+    },
+    "route": "faculty_review",
+    "confidence": 0.99,
+    "evidence": "The face-centre charge q/2 contributes q/(4ε0) to the cube; the corner charge 2q contributes q/(4ε0). Total flux is q/(2ε0), so n=1. The stored integer answer is 2 and is incorrect. Answer-key change requires faculty approval.",
+    "student_reply": "Thank you for flagging this. Our verification indicates the keyed integer answer should be 1, not 2. This high-impact answer-key correction has been sent for faculty approval."
   },
   {
     "reportId": "R029",
@@ -18,8 +22,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"mu should be 0.4, I solved twice\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "Independent mathematical evaluation confirms the solution and keyed answer are correct. The equations give μ=0.8, matching option A. The student's proposed value of 0.4 is incorrect.",
+    "student_reply": "We rechecked the calculation. The coefficient of friction is 0.8, matching the stored answer. Your calculation may contain an algebraic error."
   },
   {
     "reportId": "R012",
@@ -28,13 +32,13 @@
     "repair": "spelling",
     "edit": {
       "field": "question",
-      "find": "",
-      "replace": ""
+      "find": "Epithellial tisue",
+      "replace": "Epithelial tissue"
     },
     "route": "auto_apply",
-    "confidence": 0.9,
-    "evidence": "Spelling error in option A. Permitted repair: spelling touching question field.",
-    "student_reply": "Thank you for flagging. The spelling mistake in option A has been noted and corrected."
+    "confidence": 0.99,
+    "evidence": "Option A contains the misspellings 'Epithellial tisue'. The exact word-only correction is 'Epithelial tissue'; no scientific value or option position changes.",
+    "student_reply": "Thank you for flagging the spelling error in option A. The proposed correction is 'Epithelial tissue'."
   },
   {
     "reportId": "R002",
@@ -44,12 +48,12 @@
     "edit": {
       "field": "answer",
       "find": "C",
-      "replace": "B"
+      "replace": "A"
     },
-    "route": "auto_apply",
-    "confidence": 0.95,
-    "evidence": "AC circuit problem: V = sqrt(40^2 + 30^2) = 50 V. Stored solution calculates 50 V (Option B) but answer key is mistakenly keyed as C (130 V).",
-    "student_reply": "You are absolutely right. The vector sum gives V = 50 V (Option B), but the key was set to C. It is now corrected!"
+    "route": "faculty_review",
+    "confidence": 0.98,
+    "evidence": "AC circuit problem: V=sqrt(40^2+30^2)=50 V. The stored solution calculates 50 V (Option A), but the answer key is C. Answer-key correction requires faculty approval.",
+    "student_reply": "The solution gives 50 V (Option A), while the stored key is C. The proposed answer-key correction is awaiting faculty approval; it has not been applied."
   },
   {
     "reportId": "R004",
@@ -59,8 +63,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"ans galat hai, 8225 aana chahiye\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "Independent calculation using the provided gas density and RMS velocity gives pressure 4800 N/m², matching the stored answer A. The student's suggested 8225 N/m² is incorrect.",
+    "student_reply": "We rechecked the pressure calculation. The correct result is 4800 N/m², matching the stored answer."
   },
   {
     "reportId": "R008",
@@ -70,8 +74,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"data missing\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The question and stored solution contain the required physical information. The report does not establish a missing-data defect.",
+    "student_reply": "We reviewed the question and its solution. The required information is present in the stored question."
   },
   {
     "reportId": "R034",
@@ -81,23 +85,19 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"assertion is true, intensity remains same\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The reported assertion about intensity does not establish an error in the question or answer key.",
+    "student_reply": "We reviewed the question and answer. No content correction is indicated by the report."
   },
   {
     "reportId": "R010",
     "questionId": "622f08d7b70e4b50e4500a1b",
     "verdict": "defect",
     "repair": "option_repair",
-    "edit": {
-      "field": "question",
-      "find": "",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.92,
-    "evidence": "Single choice question stem only contains 3 options (A, B, C); option D is missing from stored markup.",
-    "student_reply": "Thank you for alerting us. The missing option has been identified and scheduled for restoration."
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.97,
+    "evidence": "The stored question contains only options A, B and C. Option D is missing. Its original content cannot safely be inferred and must be recovered from an authoritative source.",
+    "student_reply": "Thank you for reporting this. The missing option requires recovery from an authoritative source and faculty approval; we will not invent option content."
   },
   {
     "reportId": "R017",
@@ -106,9 +106,9 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.96,
-    "evidence": "ErrorHistory confirms faculty previously corrected 'mere' -> 'more' on 2026-11-07. Live record already has correct spelling.",
-    "student_reply": "Good eye! This spelling error was previously reported and has already been corrected in our question bank."
+    "confidence": 0.99,
+    "evidence": "ErrorHistory confirms faculty previously corrected 'mere' to 'more' and 'shurbs' to 'shrubs' on 2026-11-07. The live question contains the corrected spelling.",
+    "student_reply": "This spelling issue was previously corrected by faculty. The live question already contains the corrected wording."
   },
   {
     "reportId": "R032",
@@ -118,8 +118,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"answer 0.08 hai, 8 kyu?\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The stored question, solution and keyed answer were independently checked. The student's comment does not establish an answer-key defect.",
+    "student_reply": "We reviewed the question and answer. The stored answer is consistent with the verified solution."
   },
   {
     "reportId": "R026",
@@ -129,8 +129,8 @@
     "edit": null,
     "route": "faculty_review",
     "confidence": 0.9,
-    "evidence": "Student flagged topic as deleted from NEET syllabus. Requires senior faculty confirmation before any change.",
-    "student_reply": "Thanks for flagging. Syllabus exclusions require faculty review; our subject leads will verify whether this topic is excluded for NEET."
+    "evidence": "Student flagged the topic as deleted from the NEET syllabus. Syllabus status requires confirmation by senior faculty before any change.",
+    "student_reply": "Thanks for flagging this. Syllabus exclusions require faculty review; the academic team will verify the current NEET syllabus."
   },
   {
     "reportId": "R042",
@@ -139,9 +139,9 @@
     "repair": "wrong_chapter",
     "edit": null,
     "route": "faculty_review",
-    "confidence": 0.97,
-    "evidence": "Question on displacement current is filed under Geometrical Optics rather than Electromagnetic Waves. Taxonomy auto:false.",
-    "student_reply": "You are completely right. This question belongs to Electromagnetic Waves and has been routed to faculty to reclassify the chapter."
+    "confidence": 0.99,
+    "evidence": "The question concerns displacement current and is filed under Geometrical Optics. The appropriate chapter classification requires faculty confirmation.",
+    "student_reply": "Thank you. This question has been routed to faculty to verify and correct its chapter classification."
   },
   {
     "reportId": "R023",
@@ -150,9 +150,9 @@
     "repair": "wrong_chapter",
     "edit": null,
     "route": "faculty_review",
-    "confidence": 0.96,
-    "evidence": "Biology question on neural control is misclassified under Living World. Requires faculty reclassification.",
-    "student_reply": "Thank you. This question has been forwarded to biology faculty to update its chapter mapping to Neural Control and Coordination."
+    "confidence": 0.97,
+    "evidence": "The biology question concerns neural control but is classified under Living World. Faculty must confirm the correct chapter mapping.",
+    "student_reply": "Thank you. This question has been forwarded to biology faculty to verify its chapter classification."
   },
   {
     "reportId": "R007",
@@ -162,8 +162,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"inductance ki value hi nahi di hai\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The reported concern about missing inductance does not establish a defect in the stored question after independent review.",
+    "student_reply": "We reviewed the question and its solution. No missing-data correction is indicated."
   },
   {
     "reportId": "R003",
@@ -173,12 +173,12 @@
     "edit": {
       "field": "answer",
       "find": "C",
-      "replace": "B"
+      "replace": "A"
     },
-    "route": "auto_apply",
-    "confidence": 0.95,
-    "evidence": "AC circuit problem: V = sqrt(40^2 + 30^2) = 50 V. Stored solution calculates 50 V (Option B) but answer key is mistakenly keyed as C (130 V).",
-    "student_reply": "You are absolutely right. The vector sum gives V = 50 V (Option B), but the key was set to C. It is now corrected!"
+    "route": "faculty_review",
+    "confidence": 0.98,
+    "evidence": "The AC circuit calculation gives sqrt(40^2+30^2)=50 V, corresponding to Option A. The stored answer key is C. Answer-key correction requires faculty approval.",
+    "student_reply": "The calculation gives 50 V (Option A), while the stored key is C. The proposed correction is awaiting faculty approval."
   },
   {
     "reportId": "R038",
@@ -187,24 +187,20 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.94,
-    "evidence": "Student experienced an input response issue on option selection. The question content and answer key are correct.",
-    "student_reply": "Thanks for flagging. The question and answer key are correct; your report regarding response capture has been logged with our app engineering team."
+    "confidence": 0.99,
+    "evidence": "The report concerns the platform recording a different selected option. This is application behaviour, not a defect in the question content.",
+    "student_reply": "Thanks for reporting this. Your option-selection issue has been logged for app engineering review."
   },
   {
     "reportId": "R014",
     "questionId": "63765a28f1d8416ae0408d89",
     "verdict": "defect",
     "repair": "markup_leak",
-    "edit": {
-      "field": "question",
-      "find": "\\frac",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.93,
-    "evidence": "Unescaped raw LaTeX markup '\\frac' rendered visibly in question stem.",
-    "student_reply": "Thanks for flagging. The raw LaTeX code leak has been corrected into standard rendered formatting."
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.95,
+    "evidence": "Raw LaTeX markup '\\frac' is visible in the question. The correct mathematical expression must be reconstructed and verified before replacement.",
+    "student_reply": "The raw LaTeX is visible in the question. The correct rendered markup needs to be reconstructed and checked before the question is changed."
   },
   {
     "reportId": "R040",
@@ -214,8 +210,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"wrong\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The report contains only the word 'wrong' and does not identify a specific issue. Independent review found no confirmed defect.",
+    "student_reply": "We reviewed the question and could not identify a specific issue from the report. Please share more details if you find an error."
   },
   {
     "reportId": "R044",
@@ -225,8 +221,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"answer is 22 V not 14\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "Independent review of the question and stored solution does not establish the student's suggested 22 V as the correct answer.",
+    "student_reply": "We reviewed the calculation and stored answer. The reported value does not establish an answer-key defect."
   },
   {
     "reportId": "R028",
@@ -235,9 +231,9 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"answer should be tan inverse 2\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "confidence": 0.99,
+    "evidence": "For a projectile whose horizontal range equals its maximum height, tan(theta)=4. The stored answer is option B, tan inverse 4. The student's suggestion of tan inverse 2 is incorrect.",
+    "student_reply": "We checked the projectile equations. The correct angle is tan inverse 4, matching the stored answer."
   },
   {
     "reportId": "R022",
@@ -246,13 +242,13 @@
     "repair": "spelling",
     "edit": {
       "field": "question",
-      "find": "pelxus",
-      "replace": "plexus"
+      "find": "Choroid plexux",
+      "replace": "Choroid plexus"
     },
     "route": "auto_apply",
-    "confidence": 0.95,
-    "evidence": "Typographical error in anatomical term: 'pelxus' misspelled instead of 'plexus'.",
-    "student_reply": "Thanks for pointing that out! We have corrected the spelling of 'plexus' in the question."
+    "confidence": 0.99,
+    "evidence": "Option D contains the misspelling 'plexux'. The exact word-only correction is 'plexus'; no scientific content or option position changes.",
+    "student_reply": "Thanks for pointing out the spelling mistake. The proposed correction is 'Choroid plexus'."
   },
   {
     "reportId": "R015",
@@ -261,39 +257,31 @@
     "repair": "identical_options",
     "edit": null,
     "route": "faculty_review",
-    "confidence": 0.95,
-    "evidence": "Options B and C contain identical distractor text. Authoring replacement distractors requires faculty approval.",
+    "confidence": 0.99,
+    "evidence": "Options B and C contain identical distractor text. New distractors are authored content and require faculty approval.",
     "student_reply": "Thanks for catching that. Duplicate options require new distractor authoring by faculty and have been queued for review."
   },
   {
     "reportId": "R016",
     "questionId": "6263d75bdd44e265ef926d97",
     "verdict": "defect",
-    "repair": "answer_key",
-    "edit": {
-      "field": "answer",
-      "find": "20",
-      "replace": "40"
-    },
-    "route": "auto_apply",
-    "confidence": 0.94,
-    "evidence": "Internal contradiction: solution derives 40 cm while official answer key says 20 cm. Key aligned to derived solution.",
-    "student_reply": "Good spot! The solution derived 40 cm but the key was recorded as 20. We have updated the key to match the verified solution."
+    "repair": "solution_fix",
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.96,
+    "evidence": "The calculation in the solution gives 20 cm, matching the stored answer 20 cm, but the final sentence states 40 cm. The inconsistency is in the solution text, not the answer key. A corrected full solution must be reviewed before replacement.",
+    "student_reply": "Thanks for catching the contradiction. The calculation and answer indicate 20 cm, while the final solution sentence says 40 cm. We have routed the solution correction for faculty review."
   },
   {
     "reportId": "R018",
     "questionId": "612151a6a34397610a9a2e58",
     "verdict": "defect",
     "repair": "solution_fix",
-    "edit": {
-      "field": "solution",
-      "find": "",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.96,
-    "evidence": "Stored solution text describes a different physical system (mentioning 5.47 Å) unrelated to this question stem.",
-    "student_reply": "Good catch! The explanation attached to this question belonged to a different problem. We are updating it with the correct working."
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.98,
+    "evidence": "The stored solution describes a different physical system, mentioning 5.47 Å, unrelated to the question stem. A complete replacement solution must be independently verified.",
+    "student_reply": "The stored solution appears unrelated to the question. A complete verified replacement solution is required; this has been routed for faculty review."
   },
   {
     "reportId": "R039",
@@ -302,24 +290,20 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.98,
-    "evidence": "Student requested Hindi language version. Content is correct in English; translation availability is a platform language capability.",
-    "student_reply": "This question is currently offered in English medium. Hindi medium translations for this module are being scheduled by our academic team."
+    "confidence": 0.99,
+    "evidence": "The student requested a Hindi version. The existing English question content is not defective; this is a language availability request.",
+    "student_reply": "This question is currently offered in English. Your request for a Hindi version has been noted for the academic team."
   },
   {
     "reportId": "R009",
     "questionId": "622f08d7b70e4b50e4500a1b",
     "verdict": "defect",
     "repair": "option_repair",
-    "edit": {
-      "field": "question",
-      "find": "",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.92,
-    "evidence": "Single choice question stem only contains 3 options (A, B, C); option D is missing from stored markup.",
-    "student_reply": "Thank you for alerting us. The missing option has been identified and scheduled for restoration."
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.97,
+    "evidence": "The stored question contains only options A, B and C. Option D is missing. Its original content cannot safely be inferred and must be recovered from an authoritative source.",
+    "student_reply": "Thank you for reporting this. The missing option requires recovery from an authoritative source and faculty approval; we will not invent option content."
   },
   {
     "reportId": "R013",
@@ -332,9 +316,9 @@
       "replace": ""
     },
     "route": "auto_apply",
-    "confidence": 0.94,
-    "evidence": "Exam source tag '(NEET 2019)' embedded directly inside question text instead of metadata fields.",
-    "student_reply": "Thanks for pointing that out. We have removed the stray exam reference tag from the question text."
+    "confidence": 0.96,
+    "evidence": "The exam source tag '(NEET 2019)' is embedded directly in the question text rather than stored as metadata. The exact tag can be removed without changing the academic content.",
+    "student_reply": "Thanks for pointing that out. The stray exam reference tag has been identified for removal."
   },
   {
     "reportId": "R030",
@@ -344,8 +328,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"amplitude should be 4 root 2\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The stored question and answer were reviewed. The student's suggested amplitude does not establish an error in the keyed answer.",
+    "student_reply": "We reviewed the SHM calculation and stored answer. No answer-key correction is indicated."
   },
   {
     "reportId": "R001",
@@ -355,12 +339,12 @@
     "edit": {
       "field": "answer",
       "find": "C",
-      "replace": "B"
+      "replace": "A"
     },
-    "route": "auto_apply",
-    "confidence": 0.95,
-    "evidence": "AC circuit problem: V = sqrt(40^2 + 30^2) = 50 V. Stored solution calculates 50 V (Option B) but answer key is mistakenly keyed as C (130 V).",
-    "student_reply": "You are absolutely right. The vector sum gives V = 50 V (Option B), but the key was set to C. It is now corrected!"
+    "route": "faculty_review",
+    "confidence": 0.98,
+    "evidence": "The AC circuit calculation gives sqrt(40^2+30^2)=50 V, corresponding to Option A. The stored solution gives 50 V but the answer key is C. Answer-key correction requires faculty approval.",
+    "student_reply": "The solution gives 50 V (Option A), while the stored key is C. The proposed correction is awaiting faculty approval."
   },
   {
     "reportId": "R036",
@@ -369,9 +353,9 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.93,
-    "evidence": "Mobile viewport clipping reported by student. Stored content and MathML are complete and intact.",
-    "student_reply": "Thanks for reporting. The question and options are complete in our system, and our frontend team is refining mobile layout responsiveness."
+    "confidence": 0.99,
+    "evidence": "The student reports mobile viewport clipping. The stored question content and options are complete; the issue concerns responsive rendering.",
+    "student_reply": "Thanks for reporting this. The question content is complete, and the mobile layout issue has been flagged for frontend review."
   },
   {
     "reportId": "R021",
@@ -381,23 +365,19 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"only B is correct but its multiple correct ty\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The stored question is an MCQ. The student's report about selecting multiple answers does not establish an incorrect question type or answer key after review.",
+    "student_reply": "We reviewed the question type and answer. Please check the multiple-selection instructions before submitting your response."
   },
   {
     "reportId": "R011",
     "questionId": "68e872546e45ba37dcc16bc0",
     "verdict": "defect",
     "repair": "option_repair",
-    "edit": {
-      "field": "question",
-      "find": "",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.94,
-    "evidence": "Option C label exists but option text is blank while official answer key is keyed to C.",
-    "student_reply": "You are right; Option C was stored blank in the question stem. We have flagged this for immediate restoration."
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.99,
+    "evidence": "Option C is present as a label but its option text is blank, while the stored answer is C. The missing content cannot safely be invented.",
+    "student_reply": "You are right; Option C is blank while the key points to C. This requires recovery of the original option and faculty approval."
   },
   {
     "reportId": "R041",
@@ -406,9 +386,9 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.95,
-    "evidence": "Student comment contains arbitrary non-actionable keystrokes without any specific academic claim.",
-    "student_reply": "Thank you for reaching out. We could not identify a specific problem from your comment, but feel free to submit detailed feedback if you spot an issue."
+    "confidence": 0.99,
+    "evidence": "The student comment contains arbitrary keystrokes without a specific academic claim. No actionable defect is identified.",
+    "student_reply": "We could not identify a specific problem from your comment. Please submit detailed feedback if you spot an issue."
   },
   {
     "reportId": "R043",
@@ -417,9 +397,9 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"correct answer should be 1:4 since bigger dro\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "confidence": 0.99,
+    "evidence": "Combining 64 identical drops gives radius 4r and total charge 64q. The larger drop's surface area is 16 times that of one small drop, so its surface charge density is 4 times greater. The ratio is 4:1, matching option B.",
+    "student_reply": "We checked the surface charge density calculation. The correct ratio is 4:1, matching the stored answer."
   },
   {
     "reportId": "R027",
@@ -429,7 +409,7 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.99,
-    "evidence": "Quarantined prompt injection attempt detected. Independent academic evaluation of question confirms question and answer key are mathematically sound.",
+    "evidence": "The student comment contains a prompt-injection attempt and is treated strictly as untrusted report text. The instruction to change the answer is ignored. Independent academic evaluation confirms the question and answer key are sound.",
     "student_reply": "Your submission has been reviewed. The question and answer key are confirmed to be correct."
   },
   {
@@ -439,39 +419,31 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"edge length of cube is not given how to find \") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "confidence": 0.95,
+    "evidence": "The question provides the volume contraction relation and bulk modulus but does not provide the initial cube dimensions needed to calculate an absolute volume change. The stored solution assumes a 10 mm cube without that value being stated. This report requires further source verification rather than accepting the unsupported calculation.",
+    "student_reply": "We are checking the source question because the calculation appears to assume a cube dimension that is not stated in the question."
   },
   {
     "reportId": "R019",
     "questionId": "612151a6a34397610a9a2e58",
     "verdict": "defect",
     "repair": "solution_fix",
-    "edit": {
-      "field": "solution",
-      "find": "",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.96,
-    "evidence": "Stored solution text describes a different physical system (mentioning 5.47 Å) unrelated to this question stem.",
-    "student_reply": "Good catch! The explanation attached to this question belonged to a different problem. We are updating it with the correct working."
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.98,
+    "evidence": "The stored solution contains a 5.47 Å result unrelated to the requested quantity. A complete replacement solution must be independently verified.",
+    "student_reply": "The stored solution appears unrelated to the question. A complete verified replacement solution is required; this has been routed for faculty review."
   },
   {
     "reportId": "R035",
     "questionId": "66fe9dbe22132e5a70a3e579",
     "verdict": "defect",
-    "repair": "exam_reference",
-    "edit": {
-      "field": "question",
-      "find": "(NEET 2019)",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.94,
-    "evidence": "Exam source tag '(NEET 2019)' embedded directly inside question text instead of metadata fields.",
-    "student_reply": "Thanks for pointing that out. We have removed the stray exam reference tag from the question text."
+    "repair": "solution_fix",
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.98,
+    "evidence": "The stored answer key D (Relaxin - Inhibin) is correct: relaxin and inhibin have independent non-antagonistic roles. However, the stored explanation contains a major factual error: it incorrectly claims \"Insulin and glucagon work synergistically to keep blood glucose concentrations normal.\" In reality, insulin and glucagon are antagonistic (insulin decreases blood glucose, while glucagon increases it). This is a solution-content defect, not an answer-key defect. A corrected full explanation must be reviewed by faculty before replacement.",
+    "student_reply": "Thank you for your feedback. While the keyed answer D (Relaxin - Inhibin) is correct, we identified an academic error in the explanation regarding insulin and glucagon. This solution explanation has been routed for faculty review and correction."
   },
   {
     "reportId": "R025",
@@ -480,9 +452,9 @@
     "repair": "diagram",
     "edit": null,
     "route": "faculty_review",
-    "confidence": 0.95,
-    "evidence": "Question stem references a figure/diagram that is missing from quesImages and HTML. Human-only repair required.",
-    "student_reply": "You are correct that the diagram is missing for this question. It has been routed to our faculty team to upload the required figure."
+    "confidence": 0.99,
+    "evidence": "The question references a figure that is absent from the stored question HTML and image references. Diagram restoration requires human review.",
+    "student_reply": "You are correct that the diagram is missing. This has been routed to faculty to recover and upload the required figure."
   },
   {
     "reportId": "R037",
@@ -491,9 +463,9 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.92,
-    "evidence": "Student reported slow question loading latency. Stored academic text and formula markup are valid.",
-    "student_reply": "Thank you for letting us know. The question content is correct; we have flagged the loading performance with our infrastructure team."
+    "confidence": 0.99,
+    "evidence": "The student reports slow loading. The stored academic text, formula markup and answer are valid; this is a performance issue.",
+    "student_reply": "Thank you for letting us know. The question content is correct; the loading issue has been flagged for engineering review."
   },
   {
     "reportId": "R020",
@@ -503,8 +475,8 @@
     "edit": null,
     "route": "no_change",
     "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"I marked A B D and still got it wrong\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "evidence": "The question is stored as an MCQ. The report describes a multiple-selection scoring concern but does not establish a content defect.",
+    "student_reply": "We reviewed the question and answer. Please check the multiple-correct selection instructions before submitting."
   },
   {
     "reportId": "R033",
@@ -513,9 +485,9 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"answer should be 3112.99 not 3113\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "confidence": 0.99,
+    "evidence": "The total surface area is 6(7.203)^2=311.299... m², which rounds to 311.3 m² using the stated significant digits. Therefore 10A=3113, matching the stored answer.",
+    "student_reply": "We checked the significant-figure calculation. The rounded surface area is 311.3 m², so 10A is 3113."
   },
   {
     "reportId": "R031",
@@ -524,23 +496,19 @@
     "repair": null,
     "edit": null,
     "route": "no_change",
-    "confidence": 0.91,
-    "evidence": "Independent mathematical and subject evaluation confirms question stem, solution derivation, and keyed answer are scientifically sound. Student calculation in comment (\"answer 2 sec hona chahiye\") is mathematically invalid.",
-    "student_reply": "We carefully rechecked the question and solution steps. The current answer key is correct—double check your formulas and calculation steps!"
+    "confidence": 0.99,
+    "evidence": "The relative angular acceleration is π/4 rad/s². The dots first realign when the relative angular displacement is 2π, giving t=4 seconds, matching the stored answer.",
+    "student_reply": "We checked the relative angular displacement calculation. The first realignment occurs after 4 seconds, matching the stored answer."
   },
   {
     "reportId": "R024",
     "questionId": "5fc60508028950133eac8963",
     "verdict": "defect",
     "repair": "answer_form",
-    "edit": {
-      "field": "question",
-      "find": "",
-      "replace": ""
-    },
-    "route": "auto_apply",
-    "confidence": 0.91,
-    "evidence": "Question stem omits required measurement units for numerical response. Additive answer_form repair.",
-    "student_reply": "Thanks for the feedback. We have added the required units specification to clarify the answer format."
+    "edit": null,
+    "route": "faculty_review",
+    "confidence": 0.95,
+    "evidence": "The numerical-response question does not clearly state the required unit or answer format. The clarification must be specified and reviewed before modifying the stem.",
+    "student_reply": "Thanks for the feedback. The required answer unit or format needs to be specified. The clarification has been routed for faculty review."
   }
 ]

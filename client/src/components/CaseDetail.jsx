@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   CheckCircle, 
@@ -11,9 +11,13 @@ import {
   Eye, 
   Edit3, 
   XCircle,
-  HelpCircle
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  Sparkles
 } from 'lucide-react';
 import QuestionRenderer from './QuestionRenderer';
+import PersistedInvestigationPanel from './PersistedInvestigationPanel';
 
 /**
  * CaseDetail
@@ -29,9 +33,12 @@ export default function CaseDetail({
   caseData, 
   questionData, 
   taxonomy, 
+  investigations = [],
   onAction,
   actionLoading 
 }) {
+  const [showLiveTriage, setShowLiveTriage] = useState(false);
+
   if (!caseData) {
     return (
       <div className="h-full flex items-center justify-center p-12 text-[#626965] text-xs">
@@ -43,6 +50,9 @@ export default function CaseDetail({
   const qType = questionData?.questionType || caseData.questionSnapshot?.questionType || 'scq';
   const qPayload = questionData ? questionData[qType] : null;
   const aiTriage = caseData.triageResult || caseData.aiTriage;
+  const storedInvestigations = investigations.length > 0 
+    ? investigations 
+    : (caseData.investigations || []);
 
   return (
     <div className="space-y-6">
@@ -159,140 +169,64 @@ export default function CaseDetail({
         </div>
       </div>
 
-      {/* 5. AI Triage & Surgical Diff Proposal */}
-      <div className="bg-[#161a18] border border-[#2b312e] rounded-lg p-5 space-y-4">
-        <div className="flex items-center justify-between border-b border-[#242b27] pb-3">
+      {/* 5. Primary Academic Investigation Findings (Persisted MongoDB Investigations) */}
+      <PersistedInvestigationPanel 
+        investigations={storedInvestigations} 
+        caseData={caseData} 
+      />
+
+      {/* Optional: Live AI Inference Diagnostic Accordion (Separate from Persisted Findings) */}
+      <div className="bg-[#141816] border border-[#242b27] rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-[#6ba883]" />
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#f4f3ee]">
-              AI Triage Recommendation
-            </h2>
+            <Sparkles className="w-4 h-4 text-[#78827c]" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#969e99]">
+              Live AI Inference Console (Optional)
+            </h3>
           </div>
-          <span className="text-xs font-mono text-[#8ba895]">
-            Model: deepseek-v4.1-flash
-          </span>
+          <button
+            onClick={() => setShowLiveTriage(v => !v)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono rounded bg-[#1c221f] hover:bg-[#252d29] text-[#969e99] hover:text-[#f4f3ee] border border-[#2b312e] transition-colors"
+          >
+            <span>{showLiveTriage ? 'Hide Console' : 'View Inference Status'}</span>
+            {showLiveTriage ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
         </div>
 
-        {aiTriage ? (
-          <div className="space-y-4 text-xs">
-            {/* Status if Failed or Processing */}
-            {aiTriage.status === 'failed' && (
-              <div className="p-3.5 rounded bg-[#271917] border border-[#4a2723] text-[#f2b8b3] space-y-1">
-                <span className="font-semibold text-[#fce8e6] block">Inference Attempt Failed</span>
-                <p className="text-[11px] text-[#e07167]">Error: {aiTriage.error || 'Request error occurred.'}</p>
-                {aiTriage.requiresManualRecovery && (
-                  <p className="text-[10px] text-[#e0c082] mt-1 font-mono">
-                    Note: Request reached timeout threshold. Manual review / recovery required before resubmission.
-                  </p>
+        {showLiveTriage && (
+          <div className="pt-3 border-t border-[#202522] space-y-3">
+            {aiTriage ? (
+              <div className="space-y-3 text-xs">
+                {aiTriage.status === 'failed' && (
+                  <div className="p-3 rounded bg-[#271917] border border-[#4a2723] text-[#f2b8b3] space-y-1">
+                    <span className="font-semibold text-[#fce8e6] block text-xs">Previous Live Inference Log</span>
+                    <p className="text-[11px] text-[#e07167]">Error: {aiTriage.error || 'Request error occurred.'}</p>
+                    <p className="text-[10px] text-[#969e99] mt-1">
+                      Note: The authoritative academic investigation findings are already persisted above. Live re-inference is an optional diagnostic tool.
+                    </p>
+                  </div>
+                )}
+                {aiTriage.status === 'processing' && (
+                  <div className="p-3 rounded bg-[#1e2722] border border-[#2e4437] text-[#8fd1a8] flex items-center gap-2 text-xs">
+                    <Clock className="w-3.5 h-3.5 animate-spin text-[#6ba883]" />
+                    <span>Inference in progress with NVIDIA NIM.</span>
+                  </div>
+                )}
+                {aiTriage.status === 'completed' && (
+                  <div className="p-3 rounded bg-[#121514] border border-[#202522] text-xs space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[#78827c] uppercase">Live Model Response</span>
+                      <span className="font-mono text-[#8fd1a8]">{aiTriage.verdict} ({aiTriage.repairType || 'None'})</span>
+                    </div>
+                    {aiTriage.summary && <p className="text-[#b8c9bf]">{aiTriage.summary}</p>}
+                  </div>
                 )}
               </div>
-            )}
-
-            {aiTriage.status === 'processing' && (
-              <div className="p-3.5 rounded bg-[#1e2722] border border-[#2e4437] text-[#8fd1a8] flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 animate-spin text-[#6ba883]" />
-                <span className="text-xs">Inference in progress with NVIDIA NIM. Request locked against duplicate submission.</span>
+            ) : (
+              <div className="text-center py-4 text-[#626965] text-xs">
+                No active live inference job running. Authoritative findings are rendered from persisted MongoDB records above.
               </div>
             )}
-
-            {/* Verdict & Repair (when completed or verdict available) */}
-            {(aiTriage.status === 'completed' || aiTriage.verdict) && (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3 rounded bg-[#121514] border border-[#202522]">
-                    <span className="text-[10px] text-[#626965] uppercase block">Verdict</span>
-                    <span className="font-mono text-sm text-[#8fd1a8] font-semibold">{aiTriage.verdict}</span>
-                  </div>
-                  <div className="p-3 rounded bg-[#121514] border border-[#202522]">
-                    <span className="text-[10px] text-[#626965] uppercase block">Repair Type</span>
-                    <span className="font-mono text-sm text-[#e0c082] font-semibold">{aiTriage.repairType || aiTriage.repair || 'None'}</span>
-                  </div>
-                  <div className="p-3 rounded bg-[#121514] border border-[#202522]">
-                    <span className="text-[10px] text-[#626965] uppercase block">Confidence &amp; Route</span>
-                    <div className="flex items-center justify-between mt-0.5">
-                      <span className="font-mono text-[#f4f3ee]">{((aiTriage.confidence || 0) * 100).toFixed(0)}%</span>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#1e2722] text-[#8fd1a8] border border-[#2e4437]">
-                        {aiTriage.recommendedAction || aiTriage.route || 'faculty_review'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Evidence & Reasoning */}
-                <div className="p-3.5 rounded bg-[#121514] border border-[#202522] space-y-1.5">
-                  <span className="text-[10px] font-semibold text-[#78827c] uppercase tracking-wider block">
-                    Evidence &amp; Academic Reasoning
-                  </span>
-                  {aiTriage.summary && (
-                    <p className="text-[#f4f3ee] font-medium leading-relaxed mb-1">
-                      {aiTriage.summary}
-                    </p>
-                  )}
-                  {Array.isArray(aiTriage.evidence) ? (
-                    <div className="space-y-1.5 mt-2">
-                      {aiTriage.evidence.map((ev, i) => (
-                        <div key={i} className="text-[11px] text-[#b8c9bf] bg-[#161a18] p-2 rounded border border-[#202522]">
-                          <span className="text-[#8fd1a8] font-mono text-[10px] mr-1.5 font-semibold">[{ev.source}]</span>
-                          {ev.exactText && <span className="italic mr-1 text-[#e0c082]">"{ev.exactText}"</span>}
-                          <span>{ev.explanation}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-[#b8c9bf] leading-relaxed">
-                      {aiTriage.reasoning || aiTriage.evidence || 'No detailed evidence recorded.'}
-                    </p>
-                  )}
-                </div>
-
-                {/* Surgical Diff (Before vs After) */}
-                {(aiTriage.proposedEdit || aiTriage.edit) && (
-                  <div className="p-3.5 rounded bg-[#121514] border border-[#202522] space-y-2">
-                    <span className="text-[10px] font-semibold text-[#78827c] uppercase tracking-wider block">
-                      Proposed Surgical Edit (Field: {(aiTriage.proposedEdit || aiTriage.edit).field})
-                    </span>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
-                      <div className="p-2.5 rounded bg-[#271917]/70 border border-[#4a2723] text-[#f2b8b3]">
-                        <span className="text-[10px] text-[#e07167] block uppercase font-sans mb-1">Before (Existing)</span>
-                        <div className="break-all">{(aiTriage.proposedEdit || aiTriage.edit).find || 'N/A'}</div>
-                      </div>
-                      <div className="p-2.5 rounded bg-[#17241c]/70 border border-[#294233] text-[#bde8ce]">
-                        <span className="text-[10px] text-[#6ba883] block uppercase font-sans mb-1">After (Proposed)</span>
-                        <div className="break-all">{(aiTriage.proposedEdit || aiTriage.edit).replace || 'N/A'}</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Uncertainties */}
-                {aiTriage.uncertainties && aiTriage.uncertainties.length > 0 && (
-                  <div className="p-3 rounded bg-[#272115] border border-[#443820] text-[#e0c082] space-y-1">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider block">Uncertainties Identified</span>
-                    <ul className="list-disc list-inside space-y-0.5 text-[11px] text-[#f0d8a8]">
-                      {aiTriage.uncertainties.map((u, i) => (
-                        <li key={i}>{u}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Student Reply Preview */}
-                {(aiTriage.student_reply || aiTriage.studentReply) && (
-                  <div className="p-3.5 rounded bg-[#151c18] border border-[#283d30] space-y-1">
-                    <span className="text-[10px] font-semibold text-[#73a887] uppercase tracking-wider block">
-                      Student Response Preview
-                    </span>
-                    <p className="text-[#e2eee7] italic">
-                      "{aiTriage.student_reply || aiTriage.studentReply}"
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-[#626965] text-xs">
-            Awaiting AI investigation engine analysis.
           </div>
         )}
       </div>

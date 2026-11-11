@@ -7,6 +7,8 @@ const healthRoutes = require('./routes/healthRoutes');
 const caseRoutes = require('./routes/caseRoutes');
 const overviewRoutes = require('./routes/overviewRoutes');
 const queueRoutes = require('./routes/queueRoutes');
+const investigationRoutes = require('./routes/investigationRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -26,7 +28,9 @@ app.use(cors({
 app.use(express.json({ limit: '2mb' }));
 
 // Route handlers
+app.use('/api', authRoutes);
 app.use('/api', healthRoutes);
+app.use('/api', investigationRoutes);
 app.use('/api', queueRoutes);
 app.use('/api', caseRoutes);
 app.use('/api', overviewRoutes);

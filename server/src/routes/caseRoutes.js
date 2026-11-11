@@ -2,6 +2,7 @@ const express = require('express');
 const InvestigationCase = require('../models/InvestigationCase');
 const Question = require('../models/Question');
 const Taxonomy = require('../models/Taxonomy');
+const ReportInvestigation = require('../models/ReportInvestigation');
 
 const router = express.Router();
 
@@ -54,11 +55,21 @@ router.get('/cases/:caseId', async (req, res) => {
     const question = await Question.findById(invCase.questionId).lean();
     const taxonomy = await Taxonomy.findById('acadza_taxonomy_v1').lean();
 
+    // Fetch persisted report investigations associated with this case
+    const investigations = await ReportInvestigation.find({
+      $or: [
+        { caseId: invCase.caseId },
+        { questionId: invCase.questionId },
+        { reportId: { $in: invCase.reportIds || [] } }
+      ]
+    }).sort({ reportId: 1 }).lean();
+
     return res.json({
       success: true,
       case: invCase,
       question: question || null,
-      taxonomy: taxonomy || null
+      taxonomy: taxonomy || null,
+      investigations: investigations || []
     });
   } catch (err) {
     return res.status(500).json({

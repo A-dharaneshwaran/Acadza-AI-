@@ -13,7 +13,11 @@ import {
   ArrowRight,
   SlidersHorizontal,
   FileQuestion,
-  AlertTriangle
+  AlertTriangle,
+  UserCheck,
+  CheckCircle2,
+  FileCheck,
+  CheckCircle
 } from 'lucide-react';
 import { apiRequest } from '../services/api';
 import { getCaseDetails, getPaginatedCases } from '../services/caseService';
@@ -24,13 +28,16 @@ export default function ReviewQueue() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(8);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('urgency');
+  
+  // Faculty-Oriented Filters
+  const [facultyReview, setFacultyReview] = useState('all'); // 'all' | 'needs_review' | 'no_review_needed' | 'review_completed'
+  const [findingType, setFindingType] = useState('all'); // 'all' | 'defect' | 'no_error' | 'display_issue' | ...
+  const [sortBy, setSortBy] = useState('urgency'); // 'urgency' | 'newest' | 'oldest' | 'highest_confidence' | 'lowest_confidence'
 
   // Response data
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 8, total: 0, totalPages: 1 });
+  const [reviewSummary, setReviewSummary] = useState({ needsReview: 0, noReviewNeeded: 0, reviewCompleted: 0, totalCases: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -47,15 +54,25 @@ export default function ReviewQueue() {
         page: page.toString(),
         limit: limit.toString(),
         search,
-        status: statusFilter,
-        priority: priorityFilter,
+        facultyReview,
+        findingType,
         sortBy
       });
       if (res.success) {
         setItems(res.items || []);
         setPagination(res.pagination || { page: 1, limit: 8, total: 0, totalPages: 1 });
-        if (res.items?.length > 0 && !selectedCaseId) {
-          handleSelectCase(res.items[0].caseId);
+        if (res.reviewSummary) {
+          setReviewSummary(res.reviewSummary);
+        }
+        if (res.items?.length > 0) {
+          // If previously selected case is in current page, retain it; otherwise select first
+          const stillPresent = res.items.some(i => i.caseId === selectedCaseId);
+          if (!stillPresent || !selectedCaseId) {
+            handleSelectCase(res.items[0].caseId);
+          }
+        } else {
+          setSelectedCaseId(null);
+          setSelectedCaseFull(null);
         }
       }
     } catch (err) {
@@ -83,7 +100,7 @@ export default function ReviewQueue() {
   // Re-fetch on filter or page change
   useEffect(() => {
     fetchQueue();
-  }, [page, limit, statusFilter, priorityFilter, sortBy]);
+  }, [page, limit, facultyReview, findingType, sortBy]);
 
   // Debounced search
   useEffect(() => {
@@ -100,10 +117,10 @@ export default function ReviewQueue() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2b312e] pb-4">
         <div>
           <h1 className="text-xl font-medium tracking-tight text-[#f4f3ee]">
-            Investigation Queue
+            Faculty Review Queue
           </h1>
           <p className="text-xs text-[#969e99] mt-1">
-            Question-grouped student report investigations with live search, priority filters, and pagination.
+            Question-level investigation cases prioritized by review status, taxonomy findings, and calibrated confidence.
           </p>
         </div>
 
@@ -117,64 +134,148 @@ export default function ReviewQueue() {
         </button>
       </div>
 
-      {/* 2. Controls Toolbar: Search, Filters, Sorters */}
+      {/* 2. Review Summary Metric Pills */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        {/* Needs Review Pill */}
+        <button
+          onClick={() => { setFacultyReview('needs_review'); setPage(1); }}
+          className={`p-3 rounded-lg border text-left transition-colors ${
+            facultyReview === 'needs_review'
+              ? 'bg-[#2b271d] border-[#4d4229] ring-1 ring-[#e0c082]/40'
+              : 'bg-[#161a18] border-[#2b312e] hover:border-[#38413c]'
+          }`}
+        >
+          <div className="flex items-center justify-between text-[#e0c082]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider">Needs Review</span>
+            <Clock className="w-3.5 h-3.5" />
+          </div>
+          <div className="text-lg font-mono font-semibold text-[#f4f3ee] mt-1">
+            {reviewSummary.needsReview}
+          </div>
+          <span className="text-[10px] text-[#969e99]">Pending human decision</span>
+        </button>
+
+        {/* No Review Needed Pill */}
+        <button
+          onClick={() => { setFacultyReview('no_review_needed'); setPage(1); }}
+          className={`p-3 rounded-lg border text-left transition-colors ${
+            facultyReview === 'no_review_needed'
+              ? 'bg-[#1a2620] border-[#2e4437] ring-1 ring-[#8fd1a8]/40'
+              : 'bg-[#161a18] border-[#2b312e] hover:border-[#38413c]'
+          }`}
+        >
+          <div className="flex items-center justify-between text-[#8fd1a8]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider">No Review Needed</span>
+            <CheckCircle className="w-3.5 h-3.5" />
+          </div>
+          <div className="text-lg font-mono font-semibold text-[#f4f3ee] mt-1">
+            {reviewSummary.noReviewNeeded}
+          </div>
+          <span className="text-[10px] text-[#969e99]">Auto-eligible or clean</span>
+        </button>
+
+        {/* Review Completed Pill */}
+        <button
+          onClick={() => { setFacultyReview('review_completed'); setPage(1); }}
+          className={`p-3 rounded-lg border text-left transition-colors ${
+            facultyReview === 'review_completed'
+              ? 'bg-[#1b252f] border-[#2f4356] ring-1 ring-[#8bb3d6]/40'
+              : 'bg-[#161a18] border-[#2b312e] hover:border-[#38413c]'
+          }`}
+        >
+          <div className="flex items-center justify-between text-[#8bb3d6]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider">Review Completed</span>
+            <UserCheck className="w-3.5 h-3.5" />
+          </div>
+          <div className="text-lg font-mono font-semibold text-[#f4f3ee] mt-1">
+            {reviewSummary.reviewCompleted}
+          </div>
+          <span className="text-[10px] text-[#969e99]">Signed off by faculty</span>
+        </button>
+
+        {/* Total Cases Pill */}
+        <button
+          onClick={() => { setFacultyReview('all'); setFindingType('all'); setPage(1); }}
+          className={`p-3 rounded-lg border text-left transition-colors ${
+            facultyReview === 'all' && findingType === 'all'
+              ? 'bg-[#1e2220] border-[#38413c] ring-1 ring-[#969e99]/40'
+              : 'bg-[#161a18] border-[#2b312e] hover:border-[#38413c]'
+          }`}
+        >
+          <div className="flex items-center justify-between text-[#969e99]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider">Total Cases</span>
+            <Layers className="w-3.5 h-3.5" />
+          </div>
+          <div className="text-lg font-mono font-semibold text-[#f4f3ee] mt-1">
+            {reviewSummary.totalCases}
+          </div>
+          <span className="text-[10px] text-[#969e99]">All 39 question cases</span>
+        </button>
+      </div>
+
+      {/* 3. Controls Toolbar: Search & Faculty-Oriented Dropdowns */}
       <div className="p-3.5 rounded-lg bg-[#161a18] border border-[#2b312e] flex flex-wrap items-center justify-between gap-3 text-xs">
         {/* Search */}
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full sm:w-60">
           <Search className="w-3.5 h-3.5 text-[#626965] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search Case ID, Question ID, Comment..."
+            placeholder="Search Case ID, Question, Comment..."
             className="w-full bg-[#121514] border border-[#242b27] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#f4f3ee] placeholder-[#626965] focus:outline-none focus:border-[#4d7c5f]"
           />
         </div>
 
         {/* Filters Group */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Priority Filter */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-[#626965]">Priority:</span>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Filter 1: Faculty Review (Prominent First) */}
+          <div className="flex items-center gap-1.5 bg-[#121514] border border-[#2e4437] rounded-lg px-2.5 py-1">
+            <span className="text-[11px] font-medium text-[#8fd1a8]">Faculty Review:</span>
             <select
-              value={priorityFilter}
-              onChange={(e) => { setPriorityFilter(e.target.value); setPage(1); }}
-              className="bg-[#121514] text-[#b3beba] border border-[#242b27] rounded-md px-2 py-1 text-xs focus:outline-none focus:border-[#4d7c5f]"
+              value={facultyReview}
+              onChange={(e) => { setFacultyReview(e.target.value); setPage(1); }}
+              className="bg-transparent text-[#f4f3ee] font-medium text-xs focus:outline-none cursor-pointer"
             >
-              <option value="all">All Priorities</option>
-              <option value="high">High Priority (All)</option>
-              <option value="multi">Multi-Report (2+)</option>
-              <option value="injection">Adversarial Injection</option>
+              <option value="all" className="bg-[#161a18] text-[#f4f3ee]">All Cases</option>
+              <option value="needs_review" className="bg-[#161a18] text-[#e0c082]">Needs Review</option>
+              <option value="no_review_needed" className="bg-[#161a18] text-[#8fd1a8]">No Review Needed</option>
+              <option value="review_completed" className="bg-[#161a18] text-[#8bb3d6]">Review Completed</option>
             </select>
           </div>
 
-          {/* Status Filter */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-[#626965]">Status:</span>
+          {/* Filter 2: Finding Type (Taxonomy Verdicts) */}
+          <div className="flex items-center gap-1.5 bg-[#121514] border border-[#242b27] rounded-lg px-2.5 py-1">
+            <span className="text-[11px] text-[#969e99]">Finding Type:</span>
             <select
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="bg-[#121514] text-[#b3beba] border border-[#242b27] rounded-md px-2 py-1 text-xs focus:outline-none focus:border-[#4d7c5f]"
+              value={findingType}
+              onChange={(e) => { setFindingType(e.target.value); setPage(1); }}
+              className="bg-transparent text-[#b3beba] text-xs focus:outline-none cursor-pointer"
             >
-              <option value="all">All Statuses</option>
-              <option value="ready_for_ai">Ready for AI</option>
-              <option value="needs_faculty_review">Needs Faculty Review</option>
-              <option value="ai_completed">AI Completed</option>
+              <option value="all" className="bg-[#161a18] text-[#f4f3ee]">All Findings</option>
+              <option value="defect" className="bg-[#161a18] text-[#f2b8b3]">Defect</option>
+              <option value="no_error" className="bg-[#161a18] text-[#8fd1a8]">No Error</option>
+              <option value="display_issue" className="bg-[#161a18] text-[#e0c082]">Display Issue</option>
+              <option value="app_issue" className="bg-[#161a18] text-[#e0c082]">App Issue</option>
+              <option value="language_mode" className="bg-[#161a18] text-[#b3beba]">Language Mode</option>
+              <option value="already_fixed" className="bg-[#161a18] text-[#8fd1a8]">Already Fixed</option>
+              <option value="not_actionable" className="bg-[#161a18] text-[#969e99]">Not Actionable</option>
             </select>
           </div>
 
-          {/* Sort Selector */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-[#626965]">Sort:</span>
+          {/* Filter 3: Sort By */}
+          <div className="flex items-center gap-1.5 bg-[#121514] border border-[#242b27] rounded-lg px-2.5 py-1">
+            <span className="text-[11px] text-[#969e99]">Sort By:</span>
             <select
               value={sortBy}
               onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
-              className="bg-[#121514] text-[#b3beba] border border-[#242b27] rounded-md px-2 py-1 text-xs focus:outline-none focus:border-[#4d7c5f]"
+              className="bg-transparent text-[#b3beba] text-xs focus:outline-none cursor-pointer"
             >
-              <option value="urgency">Urgency</option>
-              <option value="recent">Most Recent</option>
-              <option value="reportCount">Report Count</option>
-              <option value="subject">Subject</option>
+              <option value="urgency" className="bg-[#161a18] text-[#f4f3ee]">Urgency (Default)</option>
+              <option value="newest" className="bg-[#161a18] text-[#f4f3ee]">Newest First</option>
+              <option value="oldest" className="bg-[#161a18] text-[#f4f3ee]">Oldest First</option>
+              <option value="highest_confidence" className="bg-[#161a18] text-[#f4f3ee]">Highest Confidence</option>
+              <option value="lowest_confidence" className="bg-[#161a18] text-[#f4f3ee]">Lowest Confidence</option>
             </select>
           </div>
         </div>
@@ -188,13 +289,13 @@ export default function ReviewQueue() {
         </div>
       )}
 
-      {/* 3. Main Split View: Queue List (Left) and Case Detail Studio (Right) */}
+      {/* 4. Main Split View: Queue List (Left) and Case Detail Studio (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Paginated Queue Table / Cards */}
         <div className="lg:col-span-5 space-y-3">
           <div className="flex items-center justify-between text-[11px] text-[#78827c] px-1">
             <span>
-              Showing {items.length} of {pagination.total} investigations
+              Showing {items.length} of {pagination.total} cases
             </span>
             <span className="font-mono">Page {pagination.page} / {pagination.totalPages || 1}</span>
           </div>
@@ -205,8 +306,14 @@ export default function ReviewQueue() {
               <span>Loading investigation queue...</span>
             </div>
           ) : items.length === 0 ? (
-            <div className="p-8 text-center text-xs text-[#626965] bg-[#161a18] border border-[#2b312e] rounded-lg">
-              No investigation cases match the applied filters.
+            <div className="p-8 text-center text-xs text-[#626965] bg-[#161a18] border border-[#2b312e] rounded-lg space-y-2">
+              <p>No investigation cases match the applied filters.</p>
+              <button
+                onClick={() => { setFacultyReview('all'); setFindingType('all'); setSearch(''); setPage(1); }}
+                className="text-[11px] text-[#8fd1a8] hover:underline"
+              >
+                Reset all filters
+              </button>
             </div>
           ) : (
             <div className="space-y-2 max-h-[calc(100vh-270px)] overflow-y-auto pr-1">
@@ -244,12 +351,25 @@ export default function ReviewQueue() {
                         </div>
                       </div>
 
-                      {item.injectionDetected && (
-                        <span className="shrink-0 flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-[#3b1f1c] text-[#f2b8b3] border border-[#5c2b26]">
-                          <ShieldAlert className="w-3 h-3 text-[#e07167]" />
-                          <span>Adversarial</span>
+                      <div className="flex flex-col items-end gap-1">
+                        {/* Review Status Badge */}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono border ${
+                          item.reviewStatus === 'Needs Review'
+                            ? 'bg-[#272115] text-[#e0c082] border-[#443820]'
+                            : item.reviewStatus === 'Review Completed'
+                              ? 'bg-[#1b252f] text-[#8bb3d6] border-[#2f4356]'
+                              : 'bg-[#17241c] text-[#8fd1a8] border-[#294233]'
+                        }`}>
+                          {item.reviewStatus}
                         </span>
-                      )}
+
+                        {item.injectionDetected && (
+                          <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-[#3b1f1c] text-[#f2b8b3] border border-[#5c2b26]">
+                            <ShieldAlert className="w-3 h-3 text-[#e07167]" />
+                            <span>Adversarial</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Student comment preview */}
@@ -262,9 +382,16 @@ export default function ReviewQueue() {
                         <Clock className="w-3 h-3" />
                         {new Date(item.lastReportedAt).toLocaleDateString()}
                       </span>
-                      <span className="text-[#8ba895] font-mono capitalize">
-                        {item.aiVerdict || item.status.replace(/_/g, ' ')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {item.aiConfidence && (
+                          <span className="font-mono text-[#78827c]">
+                            {((item.aiConfidence || 0) * 100).toFixed(0)}%
+                          </span>
+                        )}
+                        <span className="text-[#8ba895] font-mono capitalize">
+                          {item.aiVerdict ? item.aiVerdict.replace(/_/g, ' ') : item.status.replace(/_/g, ' ')}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );
@@ -312,6 +439,7 @@ export default function ReviewQueue() {
               caseData={selectedCaseFull.case}
               questionData={selectedCaseFull.question}
               taxonomy={selectedCaseFull.taxonomy}
+              investigations={selectedCaseFull.investigations || []}
               onAction={(action, id) => console.log('Action:', action, id)}
               actionLoading={false}
             />

@@ -48,3 +48,111 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-active);
 }
+
+/* ==========================================================================
+   Question & Solution Dark-Theme Typography (Scoped Renderer Rules)
+   Overrides legacy inline `style="color:#000000"` from upstream question dumps
+   without breaking outer app components, buttons, or badges.
+   ========================================================================== */
+.question-markup {
+  color: var(--text-primary, #f4f3ee) !important;
+  font-family: inherit;
+}
+
+/* Enforce dark-theme readable text across all child elements and override inline black color */
+.question-markup * {
+  color: inherit;
+}
+
+.question-markup span[style*="color:#000000"],
+.question-markup span[style*="color: #000000"],
+.question-markup span[style*="color:black"],
+.question-markup span[style*="color: black"],
+.question-markup [style*="color:#000000"],
+.question-markup [style*="color: #000000"],
+.question-markup [style*="color:black"],
+.question-markup [style*="color: black"] {
+  color: var(--text-primary, #f4f3ee) !important;
+}
+
+/* Structure and heading formatting within questions and solutions */
+.question-markup h1,
+.question-markup h2,
+.question-markup h3,
+.question-markup h4,
+.question-markup h5,
+.question-markup h6 {
+  color: var(--text-primary, #f4f3ee) !important;
+  font-weight: 500;
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.6;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.question-markup p {
+  color: var(--text-primary, #f4f3ee) !important;
+  line-height: 1.6;
+  margin-top: 0.375rem;
+  margin-bottom: 0.375rem;
+}
+
+.question-markup strong,
+.question-markup b {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.question-markup ol,
+.question-markup ul {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary, #f4f3ee) !important;
+}
+
+.question-markup li {
+  color: var(--text-primary, #f4f3ee) !important;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Native MathML styling in dark mode */
+.question-markup math {
+  color: var(--text-primary, #f4f3ee) !important;
+  font-size: 1.05em;
+  padding: 0.1em 0.2em;
+}
+
+.question-markup math * {
+  color: inherit !important;
+}
+
+.question-markup mi {
+  font-style: italic;
+  color: #e0dcd0 !important; /* Slightly warm accent for math variables */
+}
+
+.question-markup mn {
+  color: #8fd1a8 !important; /* Sage-green tint for mathematical numbers */
+  font-feature-settings: "tnum";
+}
+
+.question-markup mo {
+  color: #e0c082 !important; /* Warm amber-gold for mathematical operators */
+}
+
+.question-markup mtext {
+  color: var(--text-muted, #969e99) !important;
+  font-style: normal;
+}
+
+.question-markup mfrac,
+.question-markup msqrt,
+.question-markup mroot,
+.question-markup msub,
+.question-markup msup,
+.question-markup msubsup {
+  color: var(--text-primary, #f4f3ee) !important;
+}
+
