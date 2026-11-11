@@ -1,16 +1,25 @@
+
 # PROMPTS & SYSTEM DIRECTIVES LOG
 
-This document contains the prompts used during the development of Acadza — Report → Fix, including AI system instructions, coding-assistant implementation prompts, version history, and important design decisions.
+## Acadza — AI-Powered Report-to-Fix Quality Assurance Engine
 
-It records the evolution of the system from initial backend setup through report investigation, security corrections, and faculty-console integration.
+This document records the prompts, system directives, implementation phases, engineering decisions, and lessons learned during the development of Acadza.
 
-**Historical accuracy note:** Some early phase prompts are retained as excerpts and implementation summaries rather than complete verbatim prompts. Their original text is not reconstructed or invented here.
+It covers the evolution of the project from initial backend setup to report investigation, security hardening, persisted findings, and the faculty investigation console.
+
+**Historical accuracy:** Some early implementation prompts are available only as excerpts and recorded scope summaries. They are identified as such rather than reconstructed and presented as verbatim prompts. The product-level system prompt and the implementation excerpts below are reproduced from the available development record.
 
 ---
 
-## 1. Master Context & Phase 01 Implementation Prompt (v1.0)
+## 1. Prompt and Implementation History
 
-```markdown
+### 1.1 Phase 01 — Master Context and Backend Foundation
+
+**Version:** v1.0
+
+**Recorded prompt excerpt:**
+
+```text
 ACADZA — REPORT → FIX
 
 MASTER PROJECT CONTEXT + PHASE 01 IMPLEMENTATION
@@ -20,25 +29,24 @@ You are the senior full-stack engineer and AI systems architect working on the A
 You must understand the complete product, its requirements, architecture, technology choices, security principles and implementation roadmap before making changes.
 
 The human developer will review every implementation phase. Do not independently proceed to future phases.
-
-...
-
-[Phase 01 Master Prompt: Data Ingestion, Mongoose Models, Health Endpoint, NVIDIA NIM Client]
 ```
 
-### Recorded Phase 01 scope
-
+**Recorded implementation scope:**
 - Initial project foundation and backend configuration.
 - Data ingestion and Mongoose models.
-- Database connectivity.
+- MongoDB connectivity.
 - Health endpoint.
 - NVIDIA NIM client foundation.
 
----
+**Design objective:** Establish a maintainable backend foundation before introducing report investigation logic.
 
-## 2. Phase 02 Implementation Prompt (v2.0)
+### 1.2 Phase 02 — Data Integration and Report Intake
 
-```markdown
+**Version:** v2.0
+
+**Recorded prompt excerpt:**
+
+```text
 PROJECT: Acadza — Report → Fix Loop
 
 PHASE 02: COMPLETE DATA INTEGRATION & REPORT INTAKE
@@ -50,25 +58,24 @@ PRIMARY OBJECTIVE:
 Ensure that ALL supplied assignment data is properly integrated into MongoDB, preserved without information loss, and accessible to the backend.
 
 Then build the report intake and duplicate grouping foundation that will feed the AI investigation engine in the next phase.
-
-...
-
-[Phase 02 Prompt: Ingestion validation, Report intake service, duplicate grouping by questionId, prompt injection scanner, InvestigationCase model]
 ```
 
-### Recorded Phase 02 scope
-
-- Ingestion validation.
+**Recorded implementation scope:**
+- Validation of the supplied source data.
 - Report intake service.
-- Duplicate grouping by `questionId`.
+- Duplicate grouping by questionId.
 - Prompt-injection detection.
 - InvestigationCase model.
 
----
+**Design objective:** Preserve original academic records and group related complaints without losing their individual identities.
 
-## 3. Phase 03 Implementation Prompt (v3.0)
+### 1.3 Phase 03 — AI Investigation and Triage Engine
 
-```markdown
+**Version:** v3.0
+
+**Recorded prompt excerpt:**
+
+```text
 PROJECT: ACADZA — REPORT → FIX LOOP
 
 PHASE 03: AI INVESTIGATION & TRIAGE ENGINE
@@ -80,26 +87,25 @@ PRIMARY OBJECTIVE:
 Build a reusable AI investigation engine that analyzes actual investigation cases and generates structured triage recommendations.
 
 Token consumption must be treated as a limited resource on the NVIDIA Free Endpoint.
-
-...
-
-[Phase 03 Prompt: Token-efficient context builder, secure prompt generator, Zod schema validation, NVIDIA service, sequential CLI runner]
 ```
 
-### Recorded Phase 03 scope
-
+**Recorded implementation scope:**
 - Token-efficient investigation context construction.
 - Secure prompt generation.
-- Zod schema validation.
+- Zod output-schema validation.
 - NVIDIA inference service.
 - Sequential CLI runner.
 - Controlled token consumption.
 
----
+**Design objective:** Use the model to investigate academic complaints and generate structured recommendations rather than allowing unvalidated free-form responses into the application.
 
-## 4. Phase 03 Finalization & Timeout Update Prompt (v3.1)
+### 1.4 Phase 03 Finalization — Timeout and Reliability
 
-```markdown
+**Version:** v3.1
+
+**Recorded prompt excerpt:**
+
+```text
 PROJECT: ACADZA — REPORT → FIX LOOP
 
 TASK: PHASE 03 FINALIZATION + NVIDIA TIMEOUT UPDATE
@@ -115,25 +121,24 @@ Additionally, increase the NVIDIA inference timeout to exactly 450 seconds.
 The implementation must be completed without making ANY NVIDIA API requests.
 
 This is a code implementation and integration task, NOT an inference execution task.
-
-...
-
-[Phase 03 v3.1 Prompt: 450000ms centralized timeout, in-flight processing locks, manual recovery on timeouts, zero retries, health endpoint decoupling]
 ```
 
-### Recorded Phase 03.1 scope
-
+**Recorded implementation scope:**
 - Centralized inference timeout of 450,000 milliseconds.
 - In-flight processing locks.
 - Manual recovery for timed-out cases.
 - Zero automatic retries.
 - Health endpoint decoupling from external inference.
 
----
+**Design objective:** Avoid duplicate processing and unintended external API calls when inference is slow or unavailable.
 
-## 5. Phase 04 Submission Readiness & Final Deliverables Prompt (v4.0)
+### 1.5 Phase 04 — Submission Readiness
 
-```markdown
+**Version:** v4.0
+
+**Recorded prompt excerpt:**
+
+```text
 PROJECT: ACADZA — REPORT → FIX LOOP
 
 PHASE 04: SUBMISSION READINESS & FINAL DELIVERABLES
@@ -149,33 +154,123 @@ Complete all remaining assignment deliverables, improve documentation, prepare t
 DO NOT DEPLOY ANYTHING DURING THIS PHASE.
 
 Do not make any NVIDIA API calls.
-
-...
-
-[Phase 04 Prompt: Review original assignment, results.json, PRODUCT.md, PROMPTS.md completeness, README.md, GitHub safety, DEMO_SCRIPT.md, SUBMISSION_EMAIL.md, SUBMISSION_CHECKLIST.md]
 ```
 
-### Recorded Phase 04 scope
-
-- Review original assignment requirements.
-- Review `results.json`.
-- Prepare `PRODUCT.md`.
-- Complete `PROMPTS.md`.
-- Prepare `README.md`.
+**Recorded implementation scope:**
+- Review assignment requirements and investigation results.
+- Prepare PRODUCT.md and PROMPTS.md.
+- Complete README.md.
 - Check GitHub repository safety.
-- Prepare `DEMO_SCRIPT.md`.
-- Prepare `SUBMISSION_EMAIL.md`.
-- Prepare `SUBMISSION_CHECKLIST.md`.
+- Prepare DEMO_SCRIPT.md.
+- Prepare SUBMISSION_EMAIL.md.
+- Prepare SUBMISSION_CHECKLIST.md.
 
 Deployment and NVIDIA inference were explicitly excluded from this phase.
 
+### 1.6 Phase 05 — Investigation Findings and Persistence
+
+**Version:** v5.0
+
+**Recorded implementation prompt:**
+
+```text
+# PHASE 05 — COMPLETE REPORT INVESTIGATION & FINDINGS PERSISTENCE
+
+You are working on the existing Acadza AI Intern assignment: Report → Fix Loop.
+
+Your task is to investigate all supplied student reports using the original question records and the official taxonomy, then persist structured investigation findings in MongoDB.
+
+This is a data investigation and backend implementation phase. Do not redesign the application or introduce unrelated features.
+
+## 1. SOURCE DATA — STRICT REQUIREMENTS
+
+Use the original files inside the existing GIVEN_DATA directory:
+
+- reports.json (44 reports)
+- questions.json (43 reports' associated question records; 43 questions)
+- taxonomy.json (7 verdicts, 18 repairs)
+- 39 distinct investigation cases after grouping reports by question ID.
+
+## 2. INVESTIGATION RULES
+
+Investigate every report using question stem, stored answer, complete solution, type, subject, chapter, error history, student complaint, and official taxonomy.
+
+Enforce human-only repairs (auto: false), high-stakes answer_key checks, and adversarial prompt-injection quarantining (R027).
+
+## 3. BACKEND IMPLEMENTATION
+
+- Dedicated service: server/src/services/investigation/reportInvestigationService.js
+- Dedicated Mongoose model: server/src/models/ReportInvestigation.js
+- REST API routes: server/src/routes/investigationRoutes.js
+- Unit test suite: tests/phase05-investigation.test.js
+- Deterministic persistence: 44 findings persisted idempotently in MongoDB.
+```
+
+**Note:** The source dataset contains 43 questions, not 43 reports' associated question records as a separate count. The prompt's intended counts are 44 reports, 43 questions, and 39 grouped cases.
+
+### 1.7 Phase 06 — Forensic Corrections and Security
+
+**Version:** v6.0
+
+**Recorded implementation prompt:**
+
+```text
+# PHASE 06 — TARGETED CORRECTIONS FROM PHASE 05A FORENSIC AUDIT
+
+Implement only the following targeted corrections:
+
+- Fix 1: R035 substring collision by replacing naive substring check with boundary-aware matching.
+
+- Fix 2: Faculty decision protection ensuring finalized faculty decisions are never overwritten during upsert.
+
+- Fix 3: Investigation API security protecting /api/investigations with JWT auth and faculty/admin RBAC.
+
+- Fix 4: Query parameter whitelisting and MongoDB operator selector injection rejection.
+
+- Fix 5: Auto-eligibility semantics decoupling taxonomyAutoEligible, requiresFacultyReview, safeToApply, and autoEligible.
+
+- Fix 6: Comprehensive regression test suite covering all security, classification, and boundary cases.
+
+- Fix 7: Deterministic re-evaluation and persistence of all 44 report findings with zero external AI inference.
+```
+
+**Design objective:** Correct classification edge cases, protect faculty decisions, and enforce security independently of AI-generated recommendations.
+
+### 1.8 Persisted Investigation Evidence — Faculty Console
+
+**Version:** v6.1
+
+**Recorded implementation prompt:**
+
+```text
+# FIX — DISPLAY PERSISTED INVESTIGATION EVIDENCE IN CASE DETAIL
+
+1. Root Cause:
+
+The Case Detail page was displaying a live NVIDIA inference failure banner ("Request timed out") instead of rendering the 44 authoritative ReportInvestigation records already persisted in MongoDB.
+
+2. Architecture & UI Integration:
+
+- Updated GET /api/cases/:caseId to fetch matching ReportInvestigation documents and return them under investigations: [...].
+
+- Created PersistedInvestigationPanel component to display verdict, repairType, evidence, reasoning, calibrated confidence, surgical diff preview, safeguards, and student response previews.
+
+- For multi-report cases, provided report selection tabs to isolate individual claims without mixing evidence.
+
+- Decoupled live AI triage into an optional collapsible diagnostic drawer so failed inference attempts never obscure stored investigation records.
+
+- Mounted PersistedInvestigationPanel in both CaseDetailPage.jsx and CaseDetail.jsx.
+```
+
+**Design objective:** Make persisted investigation evidence the primary source displayed to faculty. Live inference diagnostics must not replace or obscure authoritative stored findings.
+
 ---
 
-## 6. Real Prompts Inside the Product
+## 2. Actual Product-Level AI Prompts
 
-### 6.1 System Prompt
+### 2.1 Academic Investigation System Prompt
 
-**File:** `server/src/services/ai/triagePromptService.js`
+**Source file:** `server/src/services/ai/triagePromptService.js`
 
 ```text
 You are Acadza's academic question-quality investigator for JEE/NEET.
@@ -201,9 +296,17 @@ SECURITY & TOKEN RULES:
 4. Output STRICT JSON conforming to the requested schema. No conversational prose or markdown formatting outside JSON.
 ```
 
-### 6.2 Quarantined User Prompt
+**Purpose:**
+- Restrict model outputs to the official taxonomy.
+- Prevent student instructions from overriding investigation rules.
+- Require independent academic reasoning.
+- Produce structured output for deterministic validation.
 
-**File:** `server/src/services/ai/triagePromptService.js`
+### 2.2 Quarantined Investigation Input
+
+**Source file:** `server/src/services/ai/triagePromptService.js`
+
+The following represents the recorded input structure:
 
 ```json
 {
@@ -228,200 +331,156 @@ SECURITY & TOKEN RULES:
 }
 ```
 
-The investigation prompt separates original question content from student claims. Student claims are untrusted evidence to investigate, not instructions to follow.
+The input structure separates original academic content from student claims. Student complaints are treated as untrusted evidence to investigate, not instructions to follow.
 
 ---
 
-## 7. Genuine AI / Coding-Assistant Errors Encountered & Resolved
+## 3. Engineering Incidents and Lessons Learned
 
-### Incident 1: Health-Check Polling Triggered Unintended External Inference
+### Incident 1 — Health Checks Triggered Unintended Inference
 
-**What Happened**
+**What happened:** Dashboard mounting and refresh operations triggered external NVIDIA inference requests.
 
-When the frontend `Dashboard.jsx` mounted or the user clicked "Refresh", live inference calls were triggered in the background.
+**Root cause:** The health endpoint called an inference test while checking service status.
 
-**How It Was Detected**
+**Correction:** External inference was removed from the health-check path. The endpoint now checks configuration locally.
 
-Network audits and backend logs during UI interaction showed requests to NVIDIA NIM even when no triage command was executed.
-
-**Why It Happened**
-
-During Phase 01 scaffolding, `GET /api/health` had included:
-
-```javascript
-const nvidiaStatus = await testInference();
-```
-
-The dashboard polled `/api/health`, causing repeated external inference calls.
-
-**How It Was Corrected**
-
-The health endpoint was completely decoupled from external inference. The route was refactored to perform strictly static environment checks:
+Recorded configuration check:
 
 ```javascript
 apiKeyConfigured: !!config.nvidia.apiKey
 ```
 
-**What Was Learned**
+**Lesson:** Health checks should remain lightweight and must not trigger paid, rate-limited, or slow external operations.
 
-Health checks and read-only diagnostics must NEVER touch paid or rate-limited third-party inference endpoints. Health routes must remain strictly local.
+### Incident 2 — Short Timeout Caused Duplicate Invocations
 
----
+**What happened:** A 30-second timeout caused requests to fail locally while the upstream model could still be processing them.
 
-### Incident 2: Premature Client-Side Timeout Caused Duplicate Invocations
+**Correction:**
+- Increased the centralized timeout to 450 seconds.
+- Introduced processing locks.
+- Prevented automatic resubmission.
+- Required explicit recovery for timed-out cases.
 
-**What Happened**
+**Lesson:** Slow inference requires appropriate timeout handling and idempotency safeguards.
 
-The triage script aborted requests with `Request timed out` after 30 seconds, leading to repeated attempts for the same question.
+### Incident 3 — Unsupported Structured Response Parameter
 
-**How It Was Detected**
-
-Task logs showed:
-
-```text
-failed: Request timed out
-```
-
-Subsequent invocations re-queued the same case.
-
-**Why It Happened**
-
-Under peak load, the NVIDIA free endpoint (`deepseek-ai/deepseek-v4.1-flash`) experiences queueing delays of 60 to 140+ seconds. A 30-second client timeout aborted locally while the upstream server was still processing.
-
-**How It Was Corrected**
-
-1. Updated the centralized timeout to **450 seconds (450,000 ms)** via `NVIDIA_REQUEST_TIMEOUT=450000`.
-2. Implemented an active database lock: cases mark their status as `processing` before initiating network calls, rejecting duplicate concurrent submissions.
-3. Added an anti-resubmission gate requiring explicit `--force` before a timed-out case can be re-run.
-
-**What Was Learned**
-
-Free inference endpoints require generous client-side timeouts coupled with database-backed idempotency locks to avoid overlapping requests.
-
----
-
-### Incident 3: Unsupported `response_format` Parameter on Hosted Model Endpoint
-
-**What Happened**
-
-Calling the NVIDIA hosted endpoint with:
+**What happened:** The hosted endpoint experienced prolonged hangs when called with:
 
 ```javascript
 response_format: { type: 'json_object' }
 ```
 
-caused prolonged socket hangs or timeout failures.
+**Experiment:** The isolated `scripts/test-format.js` experiment without this parameter returned valid JSON in approximately 145 seconds, while requests using the parameter hung.
 
-**How It Was Detected**
+**Correction:**
+- Removed the unsupported response-format option.
+- Retained explicit JSON instructions in the system prompt.
+- Used local Zod schema validation.
 
-The isolated `scripts/test-format.js` experiment without `response_format` succeeded in approximately 145 seconds with valid JSON, whereas calls including the parameter hung indefinitely.
-
-**Why It Happened**
-
-Certain hosted model endpoints on NVIDIA NIM do not fully support OpenAI's structured `response_format: { type: 'json_object' }` flag or enforce it through slow server-side constraint grammars.
-
-**How It Was Corrected**
-
-Removed the `response_format` constraint from the API options and relied instead on:
-
-- Strict system-prompt JSON formatting directives.
-- Deterministic Zod schema validation on the received text.
-
-**What Was Learned**
-
-Rely on explicit system prompts and deterministic local schema validators (Zod) rather than provider-specific JSON flags that may behave unpredictably across hosted inference tiers.
+**Lesson:** Provider-specific response features should be tested before becoming architectural dependencies. Local validation provides an additional reliability boundary.
 
 ---
 
-## 8. Phase 05 Implementation Prompt (v5.0 — Complete Report Investigation & Findings Persistence)
+## 4. Key Design Decisions — What Was Tried, Dropped, and Why
 
-```markdown
-# PHASE 05 — COMPLETE REPORT INVESTIGATION & FINDINGS PERSISTENCE
+| Area | Approach tried | Decision | Reason |
+|---|---|---|---|
+| Health monitoring | Test NVIDIA inference during health checks | Dropped | Health polling must not trigger external inference |
+| Inference timeout | 30-second timeout | Replaced with 450 seconds | Hosted endpoint queueing caused premature failures |
+| Retry behavior | Repeated invocation after timeout | Replaced with explicit recovery | Prevent duplicate processing |
+| Structured model output | Provider `response_format` option | Dropped | Hosted endpoint exhibited hangs |
+| Output validation | Trust model-generated JSON | Rejected | Model output must be validated locally |
+| Student instructions | Include student comments as ordinary prompt instructions | Rejected | Student content is untrusted input |
+| Investigation persistence | Depend on live inference to render findings | Replaced | Persisted findings must remain available independently |
+| Faculty decisions | Allow investigation upserts to replace records | Restricted | Finalized faculty decisions must be preserved |
+| Answer-key corrections | Treat as ordinary automatic corrections | Rejected | High-stakes academic changes require faculty approval |
+| Human-only repairs | Automatically apply every taxonomy repair | Rejected | Some repairs require human judgment |
 
-You are working on the existing Acadza AI Intern assignment: **Report → Fix Loop**.
+### Additional implementation decisions
 
-Your task is to investigate all supplied student reports using the original question records and the official taxonomy, then persist structured investigation findings in MongoDB.
+**1. Preserve original source data**
 
-This is a data investigation and backend implementation phase. Do not redesign the application or introduce unrelated features.
+The original questions, reports, and taxonomy are retained separately from generated findings. This avoids confusing source records with derived investigation results.
 
-## 1. SOURCE DATA — STRICT REQUIREMENTS
+**2. Separate AI recommendations from authoritative findings**
 
-Use the original files inside the existing GIVEN_DATA directory:
+AI-generated recommendations and persisted investigation findings have distinct roles. The system should not treat a model response as an approved academic correction.
 
-- reports.json (44 reports)
-- questions.json (43 questions)
-- taxonomy.json (7 verdicts, 18 repairs)
-- 39 distinct investigation cases after grouping reports by question ID.
+**3. Keep faculty approval explicit**
 
-## 2. INVESTIGATION RULES
+Sensitive corrections, particularly answer-key changes, require human review. Taxonomy eligibility does not automatically grant permission to apply a correction.
 
-Investigate every report using question stem, stored answer, complete solution, type, subject, chapter, error history, student complaint, and official taxonomy.
+**4. Keep the review interface evidence-first**
 
-Enforce human-only repairs (auto: false), high-stakes answer_key checks, and adversarial prompt-injection quarantining (R027).
+The faculty console prioritizes the question, complaint, reasoning, evidence, and proposed correction. Technical diagnostics are secondary.
 
-## 3. BACKEND IMPLEMENTATION
+**5. Make classification deterministic where possible**
 
-- Dedicated service: `server/src/services/investigation/reportInvestigationService.js`
-- Dedicated Mongoose model: `server/src/models/ReportInvestigation.js`
-- REST API routes: `server/src/routes/investigationRoutes.js` (`/api/investigations`, `/api/investigations/summary`, `/api/investigations/:reportId`)
-- Unit test suite: `tests/phase05-investigation.test.js`
-- Deterministic persistence: 44 findings persisted idempotently in MongoDB.
-```
-
----
-
-## 9. Phase 06 Implementation Prompt (v6.0 — Targeted Corrections from Phase 05A Forensic Audit)
-
-```markdown
-# PHASE 06 — TARGETED CORRECTIONS FROM PHASE 05A FORENSIC AUDIT
-
-Implement only the following targeted corrections:
-
-- Fix 1: R035 substring collision by replacing naive substring check with boundary-aware matching.
-
-- Fix 2: Faculty decision protection ensuring finalized faculty decisions are never overwritten during upsert.
-
-- Fix 3: Investigation API security protecting `/api/investigations` with JWT auth and faculty/admin RBAC.
-
-- Fix 4: Query parameter whitelisting and MongoDB operator selector injection rejection.
-
-- Fix 5: Auto-eligibility semantics decoupling `taxonomyAutoEligible`, `requiresFacultyReview`, `safeToApply`, and `autoEligible`.
-
-- Fix 6: Comprehensive regression test suite covering all security, classification, and boundary cases.
-
-- Fix 7: Deterministic re-evaluation and persistence of all 44 report findings with zero external AI inference.
-```
+Boundary-aware matching, taxonomy validation, query filtering, and regression tests reduce avoidable errors in the investigation pipeline.
 
 ---
 
-## 10. Persisted Investigation Evidence Integration Prompt (v6.1 — Case Detail UI)
+## 5. Security and Safety Principles
 
-```markdown
-# FIX — DISPLAY PERSISTED INVESTIGATION EVIDENCE IN CASE DETAIL
+The system follows these principles:
 
-1. Root Cause:
-
-The Case Detail page was displaying a live NVIDIA inference failure banner ("Request timed out") instead of rendering the 44 authoritative ReportInvestigation records already persisted in MongoDB.
-
-2. Architecture & UI Integration:
-
-- Updated GET /api/cases/:caseId to fetch matching ReportInvestigation documents and return them under investigations: [...].
-
-- Created PersistedInvestigationPanel component to display verdict, repairType, evidence, reasoning, calibrated confidence, surgical diff preview, safeguards, and student response previews.
-
-- For multi-report cases (e.g., CASE_60f744b3f1b9bc7cc7b4a949 with R001, R002, R003), provided report selection tabs to isolate individual claims without mixing evidence.
-
-- Decoupled live AI triage into an optional collapsible diagnostic drawer so failed inference attempts never obscure stored investigation records.
-
-- Mounted PersistedInvestigationPanel in both CaseDetailPage.jsx and CaseDetail.jsx (Review Queue drawer).
-```
+1. Student-submitted comments are untrusted.
+2. Prompt injection attempts must not override system instructions.
+3. The model cannot introduce arbitrary verdicts or repair categories.
+4. Model output must pass local schema validation.
+5. Answer-key changes require faculty approval.
+6. Finalized faculty decisions must not be overwritten by automated persistence.
+7. Database query parameters must be restricted and validated.
+8. Health checks must not trigger external inference.
+9. Original academic records must remain distinguishable from derived findings.
+10. An AI recommendation must never be represented as an approved correction without the appropriate review.
 
 ---
 
-## Prompt and Implementation Record
+## 6. Verification and Implementation Evidence
 
-The development history documents the progression from initial project setup to report ingestion, AI investigation, persisted findings, security corrections, and faculty-console evidence integration.
+The development record includes the following implementation evidence:
 
-The recorded incidents also demonstrate why the system uses local health checks, controlled inference timeouts, schema validation, prompt-injection isolation, and persisted investigation evidence.
+- 43 original question records.
+- 44 original student reports.
+- 7 official verdicts and 18 repair definitions.
+- 39 grouped investigation cases.
+- 44 persisted investigation findings.
+- Phase 05 investigation tests.
+- Phase 06 security and regression tests.
+- Persisted investigation evidence displayed in the faculty case-detail interface.
+- MongoDB Atlas integration.
+- Frontend deployment on Vercel.
+- Backend deployment on Render.
 
-**Core principle: AI proposes. Deterministic code validates. Faculty controls.**
+The deployed backend health response previously confirmed MongoDB connectivity and reported that the NVIDIA API key was not configured.
+
+**Inference limitation:** The NVIDIA integration code exists, but live NVIDIA inference should not be considered verified in the deployed environment. The persisted investigation workflow is separate from live model availability.
+
+---
+
+## 7. Final Architecture Principle
+
+Acadza follows a controlled decision-making architecture:
+
+**AI proposes. Deterministic code validates. Faculty controls.**
+
+The objective is not to automate academic corrections blindly. It is to reduce investigation effort while preserving academic correctness, data integrity, explainability, and human accountability.
+
+---
+
+## 8. Historical Prompt Completeness
+
+This document distinguishes between:
+- Recorded prompt excerpts.
+- Recorded implementation scope summaries.
+- Product-level prompts reproduced from the source record.
+- Engineering incidents and design decisions documented during development.
+
+The complete original text of some early coding-assistant prompts was not present in the available historical record. Those sections are therefore not represented as verbatim transcripts.
+
+For strict verbatim prompt-history compliance, the original full prompts should be recovered from the coding-assistant conversation history and appended without rewriting them.
+
