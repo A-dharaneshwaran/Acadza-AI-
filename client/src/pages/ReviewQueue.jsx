@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Inbox, 
   Search, 
@@ -24,10 +25,14 @@ import { getCaseDetails, getPaginatedCases } from '../services/caseService';
 import CaseDetail from '../components/CaseDetail';
 
 export default function ReviewQueue() {
+  const [searchParams] = useSearchParams();
+  const initialCaseParam = searchParams.get('caseId');
+  const initialSearchParam = searchParams.get('search') || '';
+
   // Query parameters
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(8);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearchParam || (initialCaseParam ? initialCaseParam : ''));
   
   // Faculty-Oriented Filters
   const [facultyReview, setFacultyReview] = useState('all'); // 'all' | 'needs_review' | 'no_review_needed' | 'review_completed'

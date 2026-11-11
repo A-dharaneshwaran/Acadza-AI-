@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Search, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen, Search, Filter, ArrowRight } from 'lucide-react';
 import { apiRequest } from '../services/api';
 import QuestionRenderer from '../components/QuestionRenderer';
 
@@ -74,7 +75,15 @@ export default function Questions() {
                 <div className="text-sm font-medium text-[#f4f3ee] mt-1">{selectedQ.questionSnapshot?.chapter || 'General Topic'}</div>
               </div>
               <div className="text-xs text-[#969e99]">
-                View complete rendered question stem, options, and solution in the <strong className="text-[#8fd1a8]">Investigation Queue</strong>.
+                View complete rendered question stem, options, and solution in the{' '}
+                <Link
+                  to={selectedQ.caseId ? `/queue?caseId=${encodeURIComponent(selectedQ.caseId)}` : '/queue'}
+                  className="inline-flex items-center gap-1 font-semibold text-[#8fd1a8] hover:text-[#bde8ce] hover:underline transition-colors"
+                >
+                  <span>Investigation Queue</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                .
               </div>
             </div>
           ) : (
