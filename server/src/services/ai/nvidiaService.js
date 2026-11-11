@@ -3,11 +3,10 @@ const config = require('../../config/env');
 
 let client = null;
 
-function getNvidiaClient() {
+function getOpenAIClient() {
   if (!config.nvidia.apiKey) {
-    throw new Error('NVIDIA_API_KEY is not configured in environment. Please provide your NVIDIA API key in .env');
+    throw new Error('NVIDIA_API_KEY is not configured in backend .env.');
   }
-
   if (!client) {
     client = new OpenAI({
       baseURL: config.nvidia.baseUrl,
@@ -18,48 +17,62 @@ function getNvidiaClient() {
 }
 
 /**
- * Test connectivity and inference with the configured NVIDIA model
+ * Execute actual NVIDIA inference with strict token limits and usage extraction.
  */
-async function testInference(prompt = 'Hello, answer with exactly "OK" if you can read this.') {
-  if (!config.nvidia.apiKey) {
-    return {
-      success: false,
-      configured: false,
-      model: config.nvidia.model,
-      message: 'NVIDIA_API_KEY is missing from environment (.env).'
-    };
-  }
+async function callNvidiaInference(messages, options = {}) {
+  const openai = getOpenAIClient();
+  const model = options.model || config.nvidia.model;
+  const maxTokens = options.maxTokens || config.nvidia.maxOutputTokens;
+  const timeoutMs = options.timeoutMs || config.nvidia.requestTimeoutMs;
+
+  const startTime = Date.now();
 
   try {
-    const openai = getNvidiaClient();
-    const startTime = Date.now();
-    const completion = await openai.chat.completions.create({
-      model: config.nvidia.model,
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.2,
-      max_tokens: 60
+    const response = await openai.chat.completions.create({
+      model,
+      messages,
+      temperature: 0.1, // low temperature for deterministic academic classification
+      max_tokens: maxTokens
+    }, {
+      timeout: timeoutMs
     });
-    const latency = Date.now() - startTime;
+
+    const durationMs = Date.now() - startTime;
+    const choice = response.choices?.[0];
+    const rawContent = choice?.message?.content?.trim();
+
+    if (!rawContent) {
+      throw new Error('NVIDIA API returned empty response content.');
+    }
 
     return {
       success: true,
-      configured: true,
-      model: config.nvidia.model,
-      latencyMs: latency,
-      response: completion.choices[0]?.message?.content?.trim()
+      content: rawContent,
+      model: response.model || model,
+      durationMs,
+      usage: response.usage ? {
+        promptTokens: response.usage.prompt_tokens,
+        completionTokens: response.usage.completion_tokens,
+        totalTokens: response.usage.total_tokens
+      } : null
     };
   } catch (error) {
-    return {
-      success: false,
-      configured: true,
-      model: config.nvidia.model,
-      error: error.message
-    };
+    // Detect rate limit (HTTP 429)
+    const isRateLimit = error.status === 429 || (error.message && error.message.includes('429'));
+    const isQuotaExhausted = error.message && (error.message.includes('quota') || error.message.includes('credit'));
+
+    const errInfo = new Error(
+      isRateLimit || isQuotaExhausted
+        ? `NVIDIA Free Endpoint Rate Limit / Quota Exceeded (HTTP ${error.status || 429}): ${error.message}`
+        : `NVIDIA Inference Failed: ${error.message}`
+    );
+    errInfo.status = error.status;
+    errInfo.isRateLimit = isRateLimit || isQuotaExhausted;
+    throw errInfo;
   }
 }
 
 module.exports = {
-  getNvidiaClient,
-  testInference,
+  callNvidiaInference,
   modelId: config.nvidia.model
 };

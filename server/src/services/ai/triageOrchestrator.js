@@ -1,85 +1,101 @@
 const investigationContextService = require('./investigationContextService');
 const triagePromptService = require('./triagePromptService');
-const nvidiaClient = require('./nvidiaClient');
+const { callNvidiaInference, modelId } = require('./nvidiaService');
 const { triageOutputSchema } = require('./triageOutputSchema');
 const taxonomyService = require('../triage/taxonomyService');
 const InvestigationCase = require('../../models/InvestigationCase');
 
 /**
- * Triage Orchestrator Service
- * Coordinates context building, prompt construction, NVIDIA NIM inference,
- * strict Zod validation, and safe persistence to MongoDB.
+ * Triage Orchestrator (Phase 03)
+ * Orchestrates context construction, NVIDIA inference, strict Zod validation,
+ * and persistence of token usage metadata.
  */
 class TriageOrchestrator {
   /**
-   * Run AI investigation triage for a single case.
-   * @param {string} caseIdentifier - caseId or questionId
-   * @param {Object} options - e.g. { force: boolean }
-   * @returns {Promise<Object>} Validated recommendation
+   * Run investigation triage for one case.
    */
   async triageCase(caseIdentifier, options = {}) {
-    // 1. Build authoritative context
+    // 1. Build context
     const context = await investigationContextService.buildContext(caseIdentifier);
 
-    // 2. Retrieve authoritative taxonomy rules
+    // Rule: Skip if already completed unless force mode is explicitly passed
+    const existing = await InvestigationCase.findOne({ caseId: context.caseId });
+    if (existing?.aiTriage?.status === 'completed' && !options.force) {
+      return {
+        success: true,
+        skipped: true,
+        caseId: context.caseId,
+        message: 'Case already triaged. Use --force to reprocess.',
+        recommendation: existing.aiTriage
+      };
+    }
+
+    // Rule: Prevent double-submission if request is actively in-flight
+    if (existing?.aiTriage?.status === 'processing') {
+      return {
+        success: false,
+        skipped: true,
+        caseId: context.caseId,
+        message: 'Case is already in processing state. Duplicate request blocked.'
+      };
+    }
+
+    // Mark status as processing in database before initiating network call
+    await InvestigationCase.updateOne(
+      { caseId: context.caseId },
+      { $set: { 'aiTriage.status': 'processing', 'aiTriage.startedAt': new Date() } }
+    );
+
+    // 2. Fetch taxonomy
     const taxonomyRules = await taxonomyService.getTaxonomy();
 
-    // 3. Construct isolated prompts
+    // 3. Prepare secure, token-optimized prompts
     const systemPrompt = triagePromptService.buildSystemPrompt(taxonomyRules);
     const userPrompt = triagePromptService.buildUserPrompt(context);
 
-    // 4. Send request through NVIDIA NIM client
-    let rawOutput;
+    // 4. Send inference request through NVIDIA NIM client
+    let inferenceResult;
     try {
-      rawOutput = await nvidiaClient.createChatCompletion([
+      inferenceResult = await callNvidiaInference([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ]);
     } catch (err) {
-      // Record failure on investigation case safely
-      await InvestigationCase.updateOne(
-        { caseId: context.caseId },
-        {
-          $set: {
-            'aiTriage.status': 'failed',
-            'aiTriage.error': err.message,
-            'aiTriage.failedAt': new Date()
+      // Record failure on investigation case safely without overwriting previous successful triage
+      if (existing?.aiTriage?.status !== 'completed') {
+        await InvestigationCase.updateOne(
+          { caseId: context.caseId },
+          {
+            $set: {
+              'aiTriage.status': 'failed',
+              'aiTriage.error': err.message,
+              'aiTriage.failedAt': new Date()
+            }
           }
-        }
-      );
+        );
+      }
       throw err;
     }
 
     // 5. Parse JSON
     let parsedJson;
     try {
-      parsedJson = JSON.parse(rawOutput);
+      parsedJson = JSON.parse(inferenceResult.content);
     } catch (jsonErr) {
-      // Strip markdown fences if present
-      const cleaned = rawOutput.replace(/```json/g, '').replace(/```/g, '').trim();
+      const cleaned = inferenceResult.content.replace(/```json/g, '').replace(/```/g, '').trim();
       parsedJson = JSON.parse(cleaned);
     }
 
-    // 6. Validate with Zod schema
+    // 6. Validate with Zod
     const validationResult = triageOutputSchema.safeParse(parsedJson);
     if (!validationResult.success) {
       const errorMsg = validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-      await InvestigationCase.updateOne(
-        { caseId: context.caseId },
-        {
-          $set: {
-            'aiTriage.status': 'validation_failed',
-            'aiTriage.error': errorMsg,
-            'aiTriage.failedAt': new Date()
-          }
-        }
-      );
       throw new Error(`AI Triage output validation failed: ${errorMsg}`);
     }
 
     const validatedData = validationResult.data;
 
-    // 7. Verify caseId and questionId match context
+    // 7. Verify IDs
     if (validatedData.caseId !== context.caseId || validatedData.questionId !== context.questionId) {
       throw new Error(`Identifier mismatch: AI returned ${validatedData.caseId}/${validatedData.questionId}, expected ${context.caseId}/${context.questionId}`);
     }
@@ -97,12 +113,12 @@ class TriageOrchestrator {
       }
     }
 
-    // 9. Persist validated recommendation to MongoDB InvestigationCase
+    // 9. Persist validated recommendation with token usage
     const aiTriageRecord = {
       status: 'completed',
-      provider: 'NVIDIA NIM Hosted Inference',
-      model: nvidiaClient.model,
-      promptVersion: 'v1.0-secure-quarantine',
+      provider: 'NVIDIA NIM Hosted API',
+      model: inferenceResult.model,
+      promptVersion: 'v3.0-free-endpoint-optimized',
       verdict: validatedData.verdict,
       repairType: validatedData.repairType || null,
       targetFields: validatedData.targetFields,
@@ -114,12 +130,11 @@ class TriageOrchestrator {
       injectionRiskConsidered: validatedData.injectionRiskConsidered,
       uncertainties: validatedData.uncertainties,
       recommendedAction: validatedData.recommendedAction,
-      proposedEdit: validatedData.proposedEdit || null,
-      studentReplyPreview: validatedData.studentReplyPreview || '',
-      generatedAt: new Date()
+      generatedAt: new Date(),
+      usage: inferenceResult.usage || null,
+      durationMs: inferenceResult.durationMs
     };
 
-    // Update case in MongoDB
     await InvestigationCase.updateOne(
       { caseId: context.caseId },
       {

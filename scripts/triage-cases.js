@@ -2,45 +2,109 @@ const { connectDB, closeDB } = require('../server/src/config/database');
 const triageOrchestrator = require('../server/src/services/ai/triageOrchestrator');
 const InvestigationCase = require('../server/src/models/InvestigationCase');
 
+/**
+ * Controlled CLI Case Processing Runner
+ * Supports:
+ *   --case <caseId>
+ *   --limit <number>
+ *   --all
+ *   --force
+ * Default: processes exactly ONE case.
+ */
 async function run() {
+  const args = process.argv.slice(2);
+  let caseId = null;
+  let limit = 1;
+  let processAll = false;
+  let force = false;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--case' && args[i + 1]) {
+      caseId = args[i + 1];
+      i++;
+    } else if (args[i] === '--limit' && args[i + 1]) {
+      limit = parseInt(args[i + 1], 10) || 1;
+      i++;
+    } else if (args[i] === '--all') {
+      processAll = true;
+    } else if (args[i] === '--force') {
+      force = true;
+    }
+  }
+
   console.log('====================================================');
-  console.log('   ACADZA AI TRIAGE ENGINE — FIRST CASE TEST (PHASE 03)');
+  console.log('   ACADZA AI TRIAGE ENGINE (FREE ENDPOINT RUNNER)');
   console.log('====================================================');
 
   await connectDB();
 
-  // Select target case: specifically Case for 60f744b3f1b9bc7cc7b4a949 (R001, R002, R003)
-  const targetCaseId = process.argv[2] || 'CASE_60f744b3f1b9bc7cc7b4a949';
-  console.log(`[Target Case] Evaluating: ${targetCaseId}`);
-
-  try {
-    const startTime = Date.now();
-    const result = await triageOrchestrator.triageCase(targetCaseId);
-    const durationMs = Date.now() - startTime;
-
-    console.log('\n---------------- INFERENCE RESULT ----------------');
-    console.log(`Case ID:         ${result.caseId}`);
-    console.log(`Question ID:     ${result.questionId}`);
-    console.log(`Model Used:      ${result.recommendation.model}`);
-    console.log(`Verdict:         ${result.recommendation.verdict}`);
-    console.log(`Repair Type:     ${result.recommendation.repairType || 'None'}`);
-    console.log(`Confidence:      ${result.recommendation.confidence}`);
-    console.log(`Action:          ${result.recommendation.recommendedAction}`);
-    console.log(`Review Required: ${result.recommendation.facultyReviewRequired}`);
-    console.log(`Duration:        ${durationMs} ms`);
-    console.log('\n--- Evidence & Summary ---');
-    console.log(`Summary: ${result.recommendation.summary}`);
-    console.log(`Reasoning: ${result.recommendation.reasoning}`);
-    console.log('\n--- Proposed Edit ---');
-    console.log(JSON.stringify(result.recommendation.proposedEdit, null, 2));
-    console.log('\n--- Student Reply Preview ---');
-    console.log(`"${result.recommendation.studentReplyPreview}"`);
-    console.log('--------------------------------------------------\n');
-  } catch (err) {
-    console.error(`[Error] Triage execution failed:`, err.message);
-  } finally {
-    await closeDB();
+  let targetCases = [];
+  if (caseId) {
+    const c = await InvestigationCase.findOne({ caseId }).lean();
+    if (!c) {
+      console.error(`Case ${caseId} not found in database.`);
+      await closeDB();
+      process.exit(1);
+    }
+    // If case has failed previously and force is not specified, do not automatically re-run
+    if (c.aiTriage?.status === 'failed' && !force) {
+      console.log(`[-] Case ${caseId} previously failed (${c.aiTriage?.error}). Automatic resubmission blocked. Pass --force to retry.`);
+      await closeDB();
+      process.exit(0);
+    }
+    targetCases = [c];
+  } else if (processAll) {
+    targetCases = await InvestigationCase.find({}).sort({ reportCount: -1, lastReportedAt: -1 }).lean();
+  } else {
+    // Default: find 1 pending case or limit
+    const filter = force ? {} : { 'aiTriage.status': { $ne: 'completed' } };
+    targetCases = await InvestigationCase.find(filter)
+      .sort({ reportCount: -1, lastReportedAt: -1 })
+      .limit(limit)
+      .lean();
   }
+
+  console.log(`[Queue Plan] Cases selected for triage: ${targetCases.length}`);
+
+  let processedCount = 0;
+  let skippedCount = 0;
+  let failedCount = 0;
+
+  for (const c of targetCases) {
+    console.log(`\n>>> Processing [${c.caseId}] (Question: ${c.questionId}, Reports: ${c.reportCount})`);
+    try {
+      const res = await triageOrchestrator.triageCase(c.caseId, { force });
+      if (res.skipped) {
+        console.log(`[-] ${res.message}`);
+        skippedCount++;
+      } else {
+        const rec = res.recommendation;
+        console.log(`[+] SUCCESS!`);
+        console.log(`    Verdict:     ${rec.verdict}`);
+        console.log(`    Repair Type: ${rec.repairType || 'None'}`);
+        console.log(`    Confidence:  ${rec.confidence}`);
+        console.log(`    Summary:     ${rec.summary}`);
+        console.log(`    Action:      ${rec.recommendedAction}`);
+        if (rec.usage) {
+          console.log(`    Tokens:      Prompt: ${rec.usage.promptTokens}, Completion: ${rec.usage.completionTokens}, Total: ${rec.usage.totalTokens}`);
+        }
+        processedCount++;
+      }
+    } catch (err) {
+      console.error(`[!] Failed to triage ${c.caseId}:`, err.message);
+      failedCount++;
+      if (err.isRateLimit) {
+        console.error(`[CRITICAL] Free endpoint quota or rate-limit reached. Halting batch sequence immediately.`);
+        break;
+      }
+    }
+  }
+
+  console.log('\n====================================================');
+  console.log(`Run complete. Processed: ${processedCount}, Skipped: ${skippedCount}, Failed: ${failedCount}`);
+  console.log('====================================================');
+
+  await closeDB();
 }
 
 if (require.main === module) {

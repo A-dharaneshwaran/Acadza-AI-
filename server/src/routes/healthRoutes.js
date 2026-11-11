@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { testInference, modelId } = require('../services/ai/nvidiaService');
+const { modelId } = require('../services/ai/nvidiaService');
 const config = require('../config/env');
 const Question = require('../models/Question');
 const Report = require('../models/Report');
@@ -38,9 +38,7 @@ router.get('/health', async (req, res) => {
     dbStatus = `error: ${err.message}`;
   }
 
-  // Check NVIDIA Inference status
-  const nvidiaStatus = await testInference();
-
+  // Static configuration check only - NEVER trigger live LLM inference on health checks
   const isHealthy = dbStatus === 'connected' && dbCounts.questions > 0;
 
   return res.status(isHealthy ? 200 : 503).json({
@@ -58,8 +56,7 @@ router.get('/health', async (req, res) => {
       provider: 'NVIDIA NIM Hosted API',
       configuredModel: modelId,
       endpoint: config.nvidia.baseUrl,
-      apiKeyConfigured: !!config.nvidia.apiKey,
-      inferenceTest: nvidiaStatus
+      apiKeyConfigured: !!config.nvidia.apiKey
     }
   });
 });

@@ -1,8 +1,8 @@
 const express = require('express');
-const Question = require('../../models/Question');
-const Report = require('../../models/Report');
-const InvestigationCase = require('../../models/InvestigationCase');
-const Taxonomy = require('../../models/Taxonomy');
+const Question = require('../models/Question');
+const Report = require('../models/Report');
+const InvestigationCase = require('../models/InvestigationCase');
+const Taxonomy = require('../models/Taxonomy');
 
 const router = express.Router();
 

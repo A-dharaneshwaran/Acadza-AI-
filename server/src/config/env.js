@@ -9,7 +9,10 @@ module.exports = {
   nvidia: {
     baseUrl: process.env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1',
     model: process.env.NVIDIA_MODEL || 'deepseek-ai/deepseek-v4.1-flash',
-    apiKey: process.env.NVIDIA_API_KEY || ''
+    apiKey: process.env.NVIDIA_API_KEY || '',
+    maxOutputTokens: parseInt(process.env.NVIDIA_MAX_OUTPUT_TOKENS, 10) || 600,
+    requestTimeoutMs: parseInt(process.env.NVIDIA_REQUEST_TIMEOUT, 10) || 240000, // 4 mins to safely accommodate NIM queueing
+    maxConcurrentRequests: parseInt(process.env.NVIDIA_MAX_CONCURRENT_REQUESTS, 10) || 1
   },
   auth: {
     jwtSecret: process.env.JWT_SECRET || 'acadza_secret',

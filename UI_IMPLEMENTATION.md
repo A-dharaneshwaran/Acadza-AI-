@@ -151,3 +151,4 @@ Access the application in your browser at: `http://localhost:5173`
 npm run build:client
 ```
 The build outputs to `client/dist/` in under 1.5 seconds.
+

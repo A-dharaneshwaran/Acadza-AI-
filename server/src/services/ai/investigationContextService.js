@@ -1,17 +1,22 @@
 const Question = require('../../models/Question');
-const Report = require('../../models/Report');
-const Taxonomy = require('../../models/Taxonomy');
 const InvestigationCase = require('../../models/InvestigationCase');
+const Taxonomy = require('../../models/Taxonomy');
 
 /**
- * Investigation Context Service
- * Retrieves and constructs a comprehensive, sanitized academic investigation
- * context object for an investigation case without altering underlying data.
+ * Investigation Context Service (Token-Optimized v3.0)
+ *
+ * Prepares accurate, minimal, high-signal investigation context for NVIDIA NIM.
+ * Prunes redundant whitespace, empty arrays, and extraneous metadata while
+ * strictly preserving:
+ *  - Essential question stem & inline MathML formulas
+ *  - Full option choices and answer key
+ *  - Supplied solution steps
+ *  - Relevant errorHistory
+ *  - Individual student claims & injection flags
  */
 class InvestigationContextService {
   /**
-   * Build complete context for an investigation case by caseId or questionId
-   * @param {string} caseIdentifier - caseId (e.g. 'CASE_60f744b3f1b9bc7cc7b4a949') or questionId
+   * Build complete token-optimized context for a case.
    */
   async buildContext(caseIdentifier) {
     let invCase = await InvestigationCase.findOne({ caseId: caseIdentifier }).lean();
@@ -23,32 +28,43 @@ class InvestigationContextService {
       throw new Error(`Investigation case not found for identifier: ${caseIdentifier}`);
     }
 
-    // Retrieve original question
     const question = await Question.findById(invCase.questionId).lean();
     if (!question) {
       throw new Error(`Referenced question ${invCase.questionId} not found in database.`);
     }
 
-    // Retrieve taxonomy rules
     const taxonomy = await Taxonomy.findById('acadza_taxonomy_v1').lean();
 
-    // Extract type-specific question structure
     const qType = question.questionType;
     const typePayload = question[qType] || {};
 
-    const qHtml = typePayload.question || '';
-    const solutionHtml = typePayload.solution || '';
+    // Token optimization: Clean extra HTML whitespace without breaking MathML tags
+    const qHtml = (typePayload.question || '').replace(/\s+/g, ' ').trim();
+    const solutionHtml = (typePayload.solution || '').replace(/\s+/g, ' ').trim();
     const answerKey = typePayload.answer;
 
-    // Build sanitized untrusted reports list
-    const studentReports = (invCase.reports || []).map(r => ({
-      reportId: r.reportId,
-      studentId: r.studentId,
-      source: r.source,
-      comment: r.comment || '',
-      reportedAt: r.reportedAt,
-      injectionDetected: !!r.injectionRisk?.injectionDetected,
-      injectionRiskLevel: r.injectionRisk?.riskLevel || 'none'
+    // Deduplicate identical student comments while preserving reportIds and counts
+    const commentMap = new Map();
+    (invCase.reports || []).forEach(r => {
+      const text = (r.comment || '').trim();
+      if (!commentMap.has(text)) {
+        commentMap.set(text, {
+          reportIds: [r.reportId],
+          studentId: r.studentId,
+          comment: text,
+          injectionDetected: !!r.injectionRisk?.injectionDetected,
+          injectionRiskLevel: r.injectionRisk?.riskLevel || 'none'
+        });
+      } else {
+        commentMap.get(text).reportIds.push(r.reportId);
+      }
+    });
+
+    const uniqueReports = Array.from(commentMap.values()).map(item => ({
+      reportIds: item.reportIds,
+      studentClaim: item.comment,
+      injectionDetected: item.injectionDetected,
+      riskLevel: item.injectionRiskLevel
     }));
 
     return {
@@ -56,27 +72,26 @@ class InvestigationContextService {
       questionId: invCase.questionId,
       status: invCase.status,
       reportCount: invCase.reportCount,
-      firstReportedAt: invCase.firstReportedAt,
-      lastReportedAt: invCase.lastReportedAt,
       questionMetadata: {
-        qid: question.qid,
-        questionType: qType,
-        subject: question.subject,
-        chapter: question.chapter,
-        concept: question.concept,
-        subConcept: question.subConcept,
-        level: question.level
+        type: qType,
+        subject: question.subject || 'JEE Academic',
+        chapter: question.chapter || 'General',
+        concept: question.concept || undefined
       },
       content: {
         questionHtml: qHtml,
         solutionHtml: solutionHtml,
         storedAnswer: answerKey
       },
-      errorHistory: question.errorHistory || [],
-      studentReports,
-      injectionAnalysis: invCase.injectionAnalysis || {
-        injectionDetected: false,
-        riskLevel: 'none'
+      errorHistory: (question.errorHistory || []).map(eh => ({
+        type: eh.type,
+        note: eh.note,
+        actor: eh.actor
+      })),
+      studentReports: uniqueReports,
+      injectionAnalysis: {
+        injectionDetected: !!invCase.injectionAnalysis?.injectionDetected,
+        riskLevel: invCase.injectionAnalysis?.riskLevel || 'none'
       },
       taxonomyRules: {
         verdicts: taxonomy?.verdicts || {},
@@ -87,4 +102,3 @@ class InvestigationContextService {
 }
 
 module.exports = new InvestigationContextService();
-

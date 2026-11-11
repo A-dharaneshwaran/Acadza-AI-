@@ -1,21 +1,14 @@
 const { z } = require('zod');
 
 /**
- * Strict Zod validation schema for AI Triage recommendation output.
- * Ensures the model strictly abides by taxonomy verdicts and repair definitions.
+ * Strict Zod Schema for NVIDIA NIM Triage Output (Phase 03)
  */
 const evidenceItemSchema = z.object({
-  source: z.string().min(1, 'Evidence source is required'),
+  source: z.string().min(1, 'Source is required'),
   reportId: z.string().nullable().optional(),
   exactText: z.string().default(''),
   explanation: z.string().min(1, 'Explanation is required')
 });
-
-const surgicalEditSchema = z.object({
-  field: z.string(),
-  find: z.string().default(''),
-  replace: z.string().default('')
-}).nullable().optional();
 
 const triageOutputSchema = z.object({
   caseId: z.string().min(1),
@@ -36,16 +29,12 @@ const triageOutputSchema = z.object({
   evidence: z.array(evidenceItemSchema).min(1),
   confidence: z.number().min(0).max(1),
   facultyReviewRequired: z.boolean(),
-  injectionRiskConsidered: z.boolean(),
+  injectionRiskConsidered: z.boolean().default(true),
   uncertainties: z.array(z.string()).default([]),
-  recommendedAction: z.string().default('faculty_review'),
-  proposedEdit: surgicalEditSchema,
-  studentReplyPreview: z.string().optional()
+  recommendedAction: z.string().default('faculty_review')
 });
 
 module.exports = {
   triageOutputSchema,
-  evidenceItemSchema,
-  surgicalEditSchema
+  evidenceItemSchema
 };
-
